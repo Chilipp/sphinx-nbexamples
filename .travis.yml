@@ -1,0 +1,24 @@
+language: python
+python:
+  - "3.4"
+  - "3.5"
+env:
+  - SPHINX_VERSION=1.3
+  - SPHINX_VERSION=1.4
+  - NBFORMAT_VERSION=4.0
+  - NBFORMAT_VERSION=4.1
+  - NBCONVERT_VERSION=4.0
+  - NBCONVERT_VERSION=4.1
+  - NBCONVERT_VERSION=4.2
+install:
+  - pip install coveralls
+  - pip install sphinx==${SPHINX_VERSION}
+  - pip install nbconvert==${NBCONVERT_VERSION}
+  - pip install nbconvert==${NBFORMAT_VERSION}
+  - python setup.py install
+
+script:
+  - coverage run --source=sphinx_nbexamples setup.py pytest
+
+after_success:
+  coveralls
