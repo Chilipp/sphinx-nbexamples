@@ -35,13 +35,14 @@ install:
   # install pandoc
   - 'wget https://github.com/jgm/pandoc/releases/download/1.17.2/pandoc-1.17.2-1-amd64.deb'
   - sudo dpkg -i pandoc-1.17.2-1-amd64.deb
-  - conda install matplotlib
+  - conda install matplotlib pillow
   - conda install jupyter
   - pip install coveralls
   - pip install sphinx==${SPHINX_VERSION}
   - pip install nbconvert==${NBCONVERT_VERSION}
   - pip install nbconvert==${NBFORMAT_VERSION}
   - python setup.py install
+  - conda env export -n root
 
 script:
   - coverage run --source=sphinx_nbexamples setup.py pytest
