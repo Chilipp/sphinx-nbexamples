@@ -86,7 +86,7 @@ from the `source on GitHub`_.
 
 Requirements
 ============
-The package only requires Sphinx_, ipython and nbconvert to be installed. It
+The package only requires Sphinx_, nbformat and nbconvert to be installed. It
 has been tested for versions higher than 1.3.
 
 

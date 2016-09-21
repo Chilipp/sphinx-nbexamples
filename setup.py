@@ -40,7 +40,7 @@ setup(name='sphinx-nbexamples',
       include_package_data=True,
       install_requires=[
           'sphinx',
-          'ipython',
+          'nbformat',
           'nbconvert',
       ],
       setup_requires=pytest_runner,
