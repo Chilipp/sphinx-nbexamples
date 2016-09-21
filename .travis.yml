@@ -3,10 +3,7 @@ python:
   - "3.4"
   - "3.5"
 # sudo is required for installing pandoc
-dist: trusty
-addons:
-  apt_packages:
-    - pandoc
+sudo: required
 env:
   - SPHINX_VERSION=1.3 NBFORMAT_VERSION=4.0 NBCONVERT_VERSION=4.0
   - SPHINX_VERSION=1.3 NBFORMAT_VERSION=4.0 NBCONVERT_VERSION=4.1
@@ -21,6 +18,10 @@ env:
   - SPHINX_VERSION=1.4 NBFORMAT_VERSION=4.1 NBCONVERT_VERSION=4.1
   - SPHINX_VERSION=1.4 NBFORMAT_VERSION=4.1 NBCONVERT_VERSION=4.2
 install:
+  # install pandoc
+  - 'wget https://github.com/jgm/pandoc/releases/download/1.17.2/pandoc-1.17.2-1-amd64.deb'
+  - dpkg -i pandoc-1.17.2-1-amd64.deb
+  - sudo apt-get install matplotlib
   - pip install jupyter
   - pip install coveralls
   - pip install sphinx==${SPHINX_VERSION}
