@@ -33,6 +33,10 @@ from psyplot.compat.pycompat import map, OrderedDict
 import logging
 import subprocess as spr
 
+__version__ = '0.0.0.dev0'
+
+__author__ = "Philipp Sommer"
+
 logger = logging.getLogger(__name__)
 
 
