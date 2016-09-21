@@ -29,9 +29,21 @@ from itertools import chain
 import nbconvert
 import nbformat
 from shutil import copyfile
-from psyplot.compat.pycompat import map, OrderedDict
 import logging
 import subprocess as spr
+
+if six.PY2:
+    from itertools import imap as map
+
+
+try:
+    from cyordereddict import OrderedDict
+except ImportError:
+    try:
+        from collections import OrderedDict
+    except ImportError:
+        from ordereddict import OrderedDict
+
 
 __version__ = '0.0.0.dev0'
 
