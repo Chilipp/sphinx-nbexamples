@@ -160,9 +160,9 @@ class NotebookProcessor(object):
         odir = os.path.dirname(outfile) + os.path.sep
         create_dirs(os.path.join(odir, 'images'))
         ep = nbconvert.preprocessors.ExecutePreprocessor(
-            timeout=300, kernel_name='python2')
+            timeout=300)
         cp = nbconvert.preprocessors.ClearOutputPreprocessor(
-            timeout=300, kernel_name='python2')
+            timeout=300)
 
         self.nb = nb = nbformat.read(infile, nbformat.current_nbformat)
         # disable warnings in the rst file
