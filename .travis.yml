@@ -25,10 +25,13 @@ install:
   # install pandoc
   - 'wget https://github.com/jgm/pandoc/releases/download/1.17.2/pandoc-1.17.2-1-amd64.deb'
   - sudo dpkg -i pandoc-1.17.2-1-amd64.deb
-  - conda install matplotlib pillow sphinx jupyter
+  - conda create -n test_env python=$TRAVIS_PYTHON_VERSION matplotlib pillow sphinx jupyter
+  - source activate test_env
+  - conda install notebook ipykernel
+  - ipython kernel install --user
   - pip install coveralls
   - python setup.py install
-  - conda env export -n root
+  - conda env export -n test_env
 
 script:
   - coverage run --source=sphinx_nbexamples setup.py pytest
