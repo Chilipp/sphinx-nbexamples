@@ -9,10 +9,6 @@ for you sphinx configuration file ``'conf.py'``:
     process_examples
     gallery_config
 
-The package requires the style sheet ``'example_gallery_styles.css'`` which
-you can find in the ``'_static'`` directory belonging to this file, copied
-into the ``'_static'`` directory of you docs.
-
 Notes
 -----
 This module was motivated by the
@@ -22,6 +18,7 @@ thumbnails and the download containers"""
 from __future__ import division
 import datetime as dt
 import os
+import os.path as osp
 import re
 import six
 from collections import defaultdict
@@ -50,6 +47,10 @@ __version__ = '0.0.0.dev0'
 __author__ = "Philipp Sommer"
 
 logger = logging.getLogger(__name__)
+
+code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')
+inner_code_blocks = re.compile(r'(?<=.. code:: python\n)(?s)(.+?)(?=\n\S+|$)')
+magic_patt = re.compile(r'(?m)^(\s+)(%.*\n)')
 
 
 def create_dirs(*dirs):
@@ -107,6 +108,24 @@ class NotebookProcessor(object):
     </div>
 """
 
+    CODE_TEMPLATE = """
+.. raw:: html
+
+    <div class="sphx-glr-thumbContainer" tooltip="{snippet}">
+
+.. only:: html
+
+    .. code:: python
+
+        {code}
+
+    :ref:`{ref_name}`
+
+.. raw:: html
+
+    </div>
+"""
+
     #: Path to the thumbnail image
     thumb_file = NOIMAGE
 
@@ -121,12 +140,47 @@ class NotebookProcessor(object):
             ref_name=self.reference)
 
     @property
+    def code_div(self):
+        """The string for creating a code example for the gallery"""
+        code_example = self.code_example
+        if code_example is None:
+            return None
+        return self.CODE_TEMPLATE.format(
+            snippet=self.get_description()[1], code=code_example,
+            ref_name=self.reference)
+
+    @property
+    def code_example(self):
+        """The code example out of the notebook metadata"""
+        if self._code_example is not None:
+            return self._code_example
+        return getattr(self.nb.metadata, 'code_example', None)
+
+    @property
+    def supplementary_files(self):
+        """The supplementary files of this notebook"""
+        if self._supplementary_files is not None:
+            return self._supplementary_files
+        return getattr(self.nb.metadata, 'supplementary_files', None)
+
+    @property
+    def thumbnail_figure(self):
+        """The integer of the thumbnail figure"""
+        if self._thumbnail_figure is not None:
+            return self._thumbnail_figure
+        elif hasattr(self.nb.metadata, 'thumbnail_figure'):
+            return osp.join(osp.dirname(self.infile),
+                            self.nb.metadata.thumbnail_figure)
+        return None
+
+    @property
     def reference(self):
         """The rst label of this example"""
         return 'gallery_' + self.outfile.replace(os.path.sep, '_')
 
     def __init__(self, infile, outfile, disable_warnings=True,
-                 preprocess=True, clear=True):
+                 preprocess=True, clear=True, code_example=None,
+                 supplementary_files=None, thumbnail_figure=None):
         """
         Parameters
         ----------
@@ -136,11 +190,28 @@ class NotebookProcessor(object):
             path to the new notebook
         disable_warnings: bool
             Boolean to control whether warnings shall be included in the rst
-            file or not"""
+            file or not
+        preprocess: bool
+            If True, the notebook is processed when generating the rst file
+        clear: bool
+            If True, the output in the download notebook is cleared
+        code_example: str
+            A python code sample that shall be used instead of a thumbnail
+            figure in the gallery. Note that you can also include a
+            ``'code_example'`` key in the metadata of the notebook
+        supplementary_files: list of str
+            Supplementary data files that shall be copied to the output
+            directory and inserted in the rst file for download
+        thumbnail_figure: int
+            The number of the figure that shall be used for download or a path
+            to a file"""
         self.infile = infile
         self.outfile = outfile
         self.preprocess = preprocess
         self.clear = clear
+        self._code_example = code_example
+        self._supplementary_files = supplementary_files
+        self._thumbnail_figure = thumbnail_figure
         self.process_notebook(disable_warnings)
         self.create_thumb()
 
@@ -205,18 +276,33 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
     def create_rst(self, nb, in_dir, odir):
         """Create the rst file from the notebook node"""
-        rst_content, resources = nbconvert.export_rst(nb)
+        raw_rst, resources = nbconvert.export_rst(nb)
         # remove ipython magics
-        rst_content = re.sub('^\s+%.*\n', '', rst_content, flags=re.MULTILINE)
+        rst_content = ''
+        i0 = 0
+        m = None
+        for m in code_blocks.finditer(raw_rst):
+            lines = m.group().splitlines(True)
+            header, content = lines[0], ''.join(lines[1:])
+            no_magics = magic_patt.sub('\g<1>', content)
+            # if the code cell only contained magic commands, we skip it
+            if no_magics.strip():
+                rst_content += raw_rst[i0:m.start()] + header + no_magics
+            i0 = m.end()
+        if m is not None:
+            rst_content += raw_rst[m.end():]
+        else:
+            rst_content = raw_rst
         rst_content = '.. _%s:\n\n' % self.reference + \
             rst_content
         rst_content += self.CODE_DOWNLOAD % (
             os.path.basename(self.py_file), os.path.basename(self.outfile))
-        if hasattr(nb.metadata, 'supplementary_files'):
-            for f in nb.metadata.supplementary_files:
+        supplementary_files = self.supplementary_files
+        if supplementary_files:
+            for f in supplementary_files:
                 if not os.path.exists(os.path.join(odir, f)):
                     copyfile(os.path.join(in_dir, f), os.path.join(odir, f))
-            rst_content += self.data_download(nb.metadata.supplementary_files)
+            rst_content += self.data_download(supplementary_files)
 
         rst_file = self.get_out_file()
         outputs = sorted(resources['outputs'], key=rst_content.find)
@@ -273,10 +359,17 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
     def create_thumb(self):
         """Create the thumbnail for html output"""
-        for pic in self.pictures[::-1]:
-            if pic.endswith('png'):
-                self.save_thumbnail(pic)
-                return
+        if self.thumbnail_figure is not None:
+            if isinstance(self.thumbnail_figure, six.string_types):
+                pic = self.thumbnail_figure
+            else:
+                pic = self.pictures[self.thumbnail_figure]
+            self.save_thumbnail(pic)
+        else:
+            for pic in self.pictures[::-1]:
+                if pic.endswith('png'):
+                    self.save_thumbnail(pic)
+                    return
 
     def get_description(self):
         """Get summary and description of this notebook"""
@@ -363,7 +456,7 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         create_dirs(thumb_dir)
 
         thumb_file = os.path.join(thumb_dir,
-                                  'sphx_glr_%s_thumb.png' % base_image_name)
+                                  'example_glr_%s_thumb.png' % base_image_name)
         if os.path.exists(image_path):
             self.scale_image(image_path, thumb_file, 400, 280)
         self.thumb_file = thumb_file
@@ -379,42 +472,55 @@ class Gallery(object):
     def __init__(self, examples_dirs=['../examples'], gallery_dirs=None,
                  pattern='example_.+.ipynb', disable_warnings=True,
                  dont_preprocess=[], preprocess=True, clear=True,
-                 dont_clear=[]):
+                 dont_clear=[], code_examples={}, supplementary_files={},
+                 thumbnail_figures={}):
         """
         Parameters
         ----------
-        examples_dirs
+        examples_dirs: list of str
             list containing the directories to loop through. Default:
             ``['../examples']``
-        gallerys_dirs
+        gallerys_dirs: list of str
             None or list of directories where the rst files shall be created.
             If None, the current working directory and the name of the
             corresponding directory in the `examples_dirs` is used. Default:
             ``None``
-        pattern
+        pattern: list of str
             str. The pattern to use to find the ipython  notebooks.
             Default: ``'example_.+.ipynb'``
-        disable_warnings
+        disable_warnings: bool
             Boolean controlling whether warnings shall be disabled when
             processing the examples. Defaultt: True
-        preprocess
+        preprocess: bool or list of str
             If True, all examples (except those specified in the
             `dont_preprocess` item) will be preprocessed when creating the rst
             files. Otherwise it might be a list of files that shall be
             preprocessed.
-        dont_preprocess
+        dont_preprocess: bool or list of str
             If True, no example will be preprocessed when creating the rst
             files. Otherwise it might be a list of files that shall not be
             preprocessed
-        clear
+        clear: bool or list of str
             If True, the output in all notebooks to download will be cleared.
             Otherwise it might be a list of notebook files of whom to clear the
             output
-        dont_clear
+        dont_clear: bool or list of str
             If True, the output in all notebooks to download will not be
             cleared. Otherwise it might be a list of notebook files  of whom
-            not to clear the output"""
-
+            not to clear the output
+        code_examples: dict
+            A mapping from filename to code samples that shall be used instead
+            of a thumbnail figure in the gallery. Note that you can also
+            include a  ``'code_example'`` key in the metadata of the notebook
+        supplementary_files: dict
+            A mapping from filename to a list of supplementary data files that
+            shall copied to the documentation directory and can be downloaded.
+            Note that you can also include a  ``'supplementary_files'`` key in
+            the metadata of the notebook
+        thumbnail_figures: dict
+            A mapping from filename to an integer or the path of a file to use
+            for the thumbnail
+        """
         if isinstance(examples_dirs, six.string_types):
             examples_dirs = [examples_dirs]
         if gallery_dirs is None:
@@ -441,42 +547,9 @@ class Gallery(object):
         self.preprocess = preprocess
         self.clear = clear
         self.dont_clear = dont_clear
-
-    def get_files(self, pattern):
-        """Get input and output notebooks
-
-        This method gets the files from the input directory that matches
-        `pattern` and returns both, input files and output files
-
-        Parameters
-        ----------
-        pattern: str or re pattern
-            The pattern that has to match the filenames
-
-        Returns
-        -------
-        dict
-            A mapping from filenames in the :attr:`in_dir` to the corresponding
-            filenames in the :attr:`out_dir`"""
-        def get_ofile(odir, indir, infile):
-            return infile.replace(indir, odir)
-        if isinstance(pattern, six.string_types):
-            pattern = re.compile(pattern)
-        ret = defaultdict(dict)
-        for indir, odir, paths in zip(self.in_dir, self.out_dir,
-                                      map(os.walk, self.in_dir)):
-            found = False
-            for file_dir, dirs, files in paths:
-                if 'README.rst' not in files:
-                    continue
-                foutdir = file_dir.replace(indir, odir + os.path.sep)
-                for f in filter(pattern.match, files):
-                    ret[(file_dir, foutdir)][os.path.join(file_dir, f)] = \
-                        os.path.join(foutdir, f)
-                found = True
-            if not found:
-                logger.warning('Could not find any notebook in %s!', indir)
-        return ret
+        self.code_examples = code_examples
+        self.supplementary_files = supplementary_files
+        self.thumbnail_figures = thumbnail_figures
 
     def process_directories(self):
         """Create the rst files from the input directories in the
@@ -517,7 +590,10 @@ class Gallery(object):
                         not (self.dont_preprocess is True or
                              f in self.dont_preprocess)),
                     clear=((self.clear is True or f in self.clear) and not
-                           (self.dont_clear is True or f in self.dont_clear)))
+                           (self.dont_clear is True or f in self.dont_clear)),
+                    code_example=self.code_examples.get(f),
+                    supplementary_files=self.supplementary_files.get(f),
+                    thumbnail_figure=self.thumbnail_figures.get(f))
                 for f in map(lambda f: os.path.join(file_dir, f),
                              filter(self.pattern.match, files))]
             readme_file = next(iter(readme_files.intersection(files)))
@@ -547,13 +623,21 @@ class Gallery(object):
         s += '\n'
 
         for nbp in this_nbps:
+            code_div = nbp.code_div
+            if code_div is not None:
+                s += code_div + '\n'
+            else:
                 s += nbp.thumbnail_div + '\n'
         s += "\n.. raw:: html\n\n    <div style='clear:both'></div>\n"
         for label, nbps in labels.items():
             s += '\n.. only:: html\n\n    .. rubric:: :ref:`%s`\n\n' % (
                 label)
             for nbp in nbps:
-                s += nbp.thumbnail_div + '\n'
+                code_div = nbp.code_div
+                if code_div is not None:
+                    s += code_div + '\n'
+                else:
+                    s += nbp.thumbnail_div + '\n'
             s += "\n.. raw:: html\n\n    <div style='clear:both'></div>\n"
 
         s += '\n'
@@ -573,10 +657,10 @@ class Gallery(object):
         cls(**app.config.example_gallery_config).process_directories()
 
 
-"""dictionary containing the configuration of the example gallery
-
-Possible keys for the dictionary are the initialization keys of the
-:class:`Gallery` class"""
+#: dictionary containing the configuration of the example gallery.
+#:
+#: Possible keys for the dictionary are the initialization keys of the
+#: :class:`Gallery` class
 gallery_config = {
     'examples_dirs': ['../examples'],
     'gallery_dirs': None,
@@ -585,7 +669,9 @@ gallery_config = {
     'preprocess': True,
     'dont_preprocess': [],
     'clear': True,
-    'dont_clear': []}
+    'dont_clear': [],
+    'code_examples': {},
+    'supplementary_files': {}}
 
 
 #: Boolean controlling whether the rst files shall created and examples
