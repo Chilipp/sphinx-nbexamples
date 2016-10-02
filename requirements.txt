@@ -1,0 +1,11 @@
+# nbformat
+#   https://nbformat.readthedocs.io/en/latest/changelog.html
+nbformat=4.1.0 # rg.filter: >= 4.1, <4.2
+
+# nbconvert
+#   https://nbformat.readthedocs.io/en/latest/changelog.html
+nbformat=4.2.0 # rg.filter: >= 4.2, <4.3
+
+# notebook
+#   https://jupyter-notebook.readthedocs.io/en/latest/changelog.html
+notebook=4.2.3 # rg.filter: >=4.2, <4.3
