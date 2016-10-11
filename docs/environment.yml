@@ -1,0 +1,8 @@
+name: sphinx_nbexamples_docs
+dependencies:
+    - matplotlib
+    - bokeh
+    - seaborn
+    - ipython
+    - nbconvert
+    - sphinx
