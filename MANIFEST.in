@@ -1,2 +1,2 @@
 include README.rst
-include sphinxnbexamples/_static/*
+include sphinx_nbexamples/_static/*

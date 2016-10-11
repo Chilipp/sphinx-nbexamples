@@ -36,7 +36,7 @@ setup(name='sphinx-nbexamples',
       author_email='philipp.sommer@unil.ch',
       license="GPLv2",
       packages=find_packages(exclude=['docs', 'tests*', 'examples']),
-      package_data={'psyplot': ['sphinx_nbexamples/_static/*']},
+      package_data={'sphinx_nbexamples': ['sphinx_nbexamples/_static/*']},
       include_package_data=True,
       install_requires=[
           'sphinx',
