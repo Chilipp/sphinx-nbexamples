@@ -53,6 +53,10 @@ inner_code_blocks = re.compile(r'(?<=.. code:: python\n)(?s)(.+?)(?=\n\S+|$)')
 magic_patt = re.compile(r'(?m)^(\s+)(%.*\n)')
 
 
+def isstring(s):
+    return isinstance(s, six.string_types)
+
+
 def create_dirs(*dirs):
     for d in dirs:
         if os.path.exists(d) and not os.path.isdir(d):
@@ -60,6 +64,18 @@ def create_dirs(*dirs):
                           "ordinary file with that name exists already!")
         elif not os.path.exists(d):
             os.makedirs(d)
+
+
+def nbviewer_link(url):
+    """Return the link to the Jupyter nbviewer for the given notebook url"""
+    if six.PY2:
+        from urlparse import urlparse as urlsplit
+    else:
+        from urllib.parse import urlsplit
+    info = urlsplit(url)
+    domain = info.netloc
+    url_type = 'github' if domain == 'github.com' else 'url'
+    return 'https://nbviewer.jupyter.org/%s%s' % (url_type, info.path)
 
 
 NOIMAGE = os.path.join(os.path.dirname(__file__), '_static', 'no_image.png')
@@ -76,9 +92,14 @@ class NotebookProcessor(object):
 
     .. container:: sphx-glr-download
 
-        **Download python file:** :download:`%s`
+        **Download python file:** :download:`{pyfile}`
 
-        **Download IPython notebook:** :download:`%s`
+        **Download IPython notebook:** :download:`{nbfile}`
+"""
+
+    #: base string for viewing the notebook in the jupyter nbviewer
+    CODE_DOWNLOAD_NBVIEWER = CODE_DOWNLOAD + """
+        **View the notebook in the** `Jupyter nbviewer <{url}>`__
 """
 
     #: base string for downloading supplementary data
@@ -126,6 +147,31 @@ class NotebookProcessor(object):
     </div>
 """
 
+    BOKEH_STYLE_SHEET = (
+        "http://cdn.pydata.org/bokeh/release/bokeh-{version}.min.css")
+
+    BOKEH_JS = (
+        "http://cdn.pydata.org/bokeh/release/bokeh-{version}.min.js")
+
+    _BOKEH_TEMPLATE = """
+.. raw:: html
+    <link
+        href="%s"
+        rel="stylesheet" type="text/css">
+
+    <script src="%s"></script>
+"""
+    BOKEH_TEMPLATE = _BOKEH_TEMPLATE % (BOKEH_STYLE_SHEET, BOKEH_JS)
+
+    BOKEH_WIDGETS_STYLE_SHEET = (
+        "http://cdn.pydata.org/bokeh/release/bokeh-{version}.min.css")
+
+    BOKEH_WIDGETS_JS = (
+        "http://cdn.pydata.org/bokeh/release/bokeh-{version}.min.js")
+
+    BOKEH_WIDGETS_TEMPLATE = _BOKEH_TEMPLATE % (BOKEH_WIDGETS_STYLE_SHEET,
+                                                BOKEH_WIDGETS_JS)
+
     #: Path to the thumbnail image
     thumb_file = NOIMAGE
 
@@ -164,23 +210,32 @@ class NotebookProcessor(object):
         return getattr(self.nb.metadata, 'supplementary_files', None)
 
     @property
-    def thumbnail_figure(self):
-        """The integer of the thumbnail figure"""
-        if self._thumbnail_figure is not None:
-            return self._thumbnail_figure
-        elif hasattr(self.nb.metadata, 'thumbnail_figure'):
-            return osp.join(osp.dirname(self.infile),
-                            self.nb.metadata.thumbnail_figure)
-        return None
+    def other_supplementary_files(self):
+        """The supplementary files of this notebook"""
+        if self._other_supplementary_files is not None:
+            return self._other_supplementary_files
+        return getattr(self.nb.metadata, 'other_supplementary_files', None)
 
     @property
     def reference(self):
         """The rst label of this example"""
         return 'gallery_' + self.outfile.replace(os.path.sep, '_')
 
+    @property
+    def url(self):
+        """The url on jupyter nbviewer for this notebook or None if unknown"""
+        if self._url is not None:
+            url = self._url
+        else:
+            url = getattr(self.nb.metadata, 'url', None)
+        if url is not None:
+            return nbviewer_link(url)
+
     def __init__(self, infile, outfile, disable_warnings=True,
                  preprocess=True, clear=True, code_example=None,
-                 supplementary_files=None, thumbnail_figure=None):
+                 supplementary_files=None, other_supplementary_files=None,
+                 thumbnail_figure=None, url=None, insert_bokeh=False,
+                 insert_bokeh_widgets=False):
         """
         Parameters
         ----------
@@ -202,16 +257,29 @@ class NotebookProcessor(object):
         supplementary_files: list of str
             Supplementary data files that shall be copied to the output
             directory and inserted in the rst file for download
+        other_supplementary_files: list of str
+            Other supplementary data files that shall be copied but not
+            inserted for download
         thumbnail_figure: int
             The number of the figure that shall be used for download or a path
-            to a file"""
+            to a file
+        url: str
+            The url where to download the notebook
+        insert_bokeh: False or str
+            The version string for bokeh to use for the style sheet
+        insert_bokeh_widgets: bool or str
+            The version string for bokeh to use for the widgets style sheet"""
         self.infile = infile
         self.outfile = outfile
         self.preprocess = preprocess
         self.clear = clear
         self._code_example = code_example
         self._supplementary_files = supplementary_files
+        self._other_supplementary_files = other_supplementary_files
         self._thumbnail_figure = thumbnail_figure
+        self._url = url
+        self.insert_bokeh = insert_bokeh
+        self.insert_bokeh_widgets = insert_bokeh_widgets
         self.process_notebook(disable_warnings)
         self.create_thumb()
 
@@ -281,27 +349,53 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         rst_content = ''
         i0 = 0
         m = None
+        # HACK: we insert the bokeh style sheets here as well, since for some
+        # themes (e.g. the sphinx_rtd_theme) it is not sufficient to include
+        # the style sheets only via app.add_stylesheet
+        bokeh_str = ''
+        if 'bokeh' in raw_rst and self.insert_bokeh:
+            bokeh_str += self.BOKEH_TEMPLATE.format(
+                version=self.insert_bokeh)
+        if 'bokeh' in raw_rst and self.insert_bokeh_widgets:
+            bokeh_str += self.BOKEH_WIDGETS_TEMPLATE.format(
+                version=self.insert_bokeh_widgets)
         for m in code_blocks.finditer(raw_rst):
             lines = m.group().splitlines(True)
             header, content = lines[0], ''.join(lines[1:])
             no_magics = magic_patt.sub('\g<1>', content)
             # if the code cell only contained magic commands, we skip it
             if no_magics.strip():
-                rst_content += raw_rst[i0:m.start()] + header + no_magics
-            i0 = m.end()
+                rst_content += (
+                    raw_rst[i0:m.start()] + bokeh_str + header + no_magics)
+                bokeh_str = ''
+                i0 = m.end()
+            else:
+                rst_content += raw_rst[i0:m.start()]
+                i0 = m.end()
         if m is not None:
-            rst_content += raw_rst[m.end():]
+            rst_content += bokeh_str + raw_rst[m.end():]
         else:
             rst_content = raw_rst
         rst_content = '.. _%s:\n\n' % self.reference + \
             rst_content
-        rst_content += self.CODE_DOWNLOAD % (
-            os.path.basename(self.py_file), os.path.basename(self.outfile))
+        url = self.url
+        if url is not None:
+            rst_content += self.CODE_DOWNLOAD_NBVIEWER.format(
+                pyfile=os.path.basename(self.py_file),
+                nbfile=os.path.basename(self.outfile),
+                url=url)
+        else:
+            rst_content += self.CODE_DOWNLOAD.format(
+                pyfile=os.path.basename(self.py_file),
+                nbfile=os.path.basename(self.outfile))
         supplementary_files = self.supplementary_files
-        if supplementary_files:
-            for f in supplementary_files:
+        other_supplementary_files = self.other_supplementary_files
+        if supplementary_files or other_supplementary_files:
+            for f in (supplementary_files or []) + (
+                    other_supplementary_files or []):
                 if not os.path.exists(os.path.join(odir, f)):
                     copyfile(os.path.join(in_dir, f), os.path.join(odir, f))
+        if supplementary_files:
             rst_content += self.data_download(supplementary_files)
 
         rst_file = self.get_out_file()
@@ -359,11 +453,12 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
     def create_thumb(self):
         """Create the thumbnail for html output"""
-        if self.thumbnail_figure is not None:
-            if isinstance(self.thumbnail_figure, six.string_types):
-                pic = self.thumbnail_figure
+        thumbnail_figure = self.copy_thumbnail_figure()
+        if thumbnail_figure is not None:
+            if isinstance(thumbnail_figure, six.string_types):
+                pic = thumbnail_figure
             else:
-                pic = self.pictures[self.thumbnail_figure]
+                pic = self.pictures[thumbnail_figure]
             self.save_thumbnail(pic)
         else:
             for pic in self.pictures[::-1]:
@@ -465,15 +560,48 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         """Get the relative path to the thumb nail of this notebook"""
         return os.path.relpath(self.thumb_file, base_dir)
 
+    def copy_thumbnail_figure(self):
+        """The integer of the thumbnail figure"""
+        ret = None
+        if self._thumbnail_figure is not None:
+            if not isstring(self._thumbnail_figure):
+                ret = self._thumbnail_figure
+            else:
+                ret = osp.join(osp.dirname(self.outfile),
+                               osp.basename(self._thumbnail_figure))
+                copyfile(self._thumbnail_figure, ret)
+                return ret
+        elif hasattr(self.nb.metadata, 'thumbnail_figure'):
+            if not isstring(self.nb.metadata.thumbnail_figure):
+                ret = self.nb.metadata.thumbnail_figure
+            else:
+                ret = osp.join(osp.dirname(self.outfile),
+                               self.nb.metadata.thumbnail_figure)
+                copyfile(osp.join(osp.dirname(self.infile),
+                                  self.nb.metadata.thumbnail_figure),
+                         ret)
+        return ret
+
 
 class Gallery(object):
     """Class to create one or more example gallerys"""
+
+    #: The input directories
+    in_dir = []
+
+    #: The output directories
+    out_dir = []
+
+    @property
+    def urls(self):
+        return self._all_urls[self._in_dir_count]
 
     def __init__(self, examples_dirs=['../examples'], gallery_dirs=None,
                  pattern='example_.+.ipynb', disable_warnings=True,
                  dont_preprocess=[], preprocess=True, clear=True,
                  dont_clear=[], code_examples={}, supplementary_files={},
-                 thumbnail_figures={}):
+                 other_supplementary_files={}, thumbnail_figures={},
+                 urls=None, insert_bokeh=False, insert_bokeh_widgets=False):
         """
         Parameters
         ----------
@@ -517,9 +645,33 @@ class Gallery(object):
             shall copied to the documentation directory and can be downloaded.
             Note that you can also include a  ``'supplementary_files'`` key in
             the metadata of the notebook
+        other_supplementary_files: dict
+            A mapping from filename to a list of other supplementary data files
+            that shall copied to the documentation directory but can not be
+            downloaded (e.g. pictures).
+            Note that you can also include a  ``'other_supplementary_files'``
+            key in the metadata of the notebook
         thumbnail_figures: dict
             A mapping from filename to an integer or the path of a file to use
             for the thumbnail
+        urls: str or dict
+            The urls where to download the notebook. Necessary to provide a
+            link to the jupyter nbviewer. If string, the path to the notebook
+            will be appended for each example notebook. Otherwise it should be
+            a dictionary with links for the given notebook
+        insert_bokeh: bool or str
+            If True, the bokeh js [1]_ and the stylesheet [2]_ are inserted in
+            the notebooks that have bokeh loaded (using the installed or
+            specified bokeh version)
+        insert_bokeh_widgets: bool or str
+            If True, the bokeh widget js [2]_ is inserted in the notebooks that
+            have bokeh loaded (using the installed or specified bokeh version)
+
+        References
+        ----------
+        .. [1] http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js
+        .. [2] http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
+        .. [3] http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.js
         """
         if isinstance(examples_dirs, six.string_types):
             examples_dirs = [examples_dirs]
@@ -549,13 +701,26 @@ class Gallery(object):
         self.dont_clear = dont_clear
         self.code_examples = code_examples
         self.supplementary_files = supplementary_files
+        self.osf = other_supplementary_files
         self.thumbnail_figures = thumbnail_figures
+        if urls is None or isinstance(urls, (dict, six.string_types)):
+            urls = [urls] * len(self.in_dir)
+        self._all_urls = urls
+        if insert_bokeh and not isstring(insert_bokeh):
+            import bokeh
+            insert_bokeh = bokeh.__version__
+        if insert_bokeh_widgets and not isstring(insert_bokeh_widgets):
+            import bokeh
+            insert_bokeh_widgets = bokeh.__version__
+        self._nbp_kws = {'insert_bokeh': insert_bokeh,
+                         'insert_bokeh_widgets': insert_bokeh_widgets}
 
     def process_directories(self):
         """Create the rst files from the input directories in the
         :attr:`in_dir` attribute"""
-        for base_dir, target_dir, paths in zip(self.in_dir, self.out_dir, map(
-                os.walk, self.in_dir)):
+        for i, (base_dir, target_dir, paths) in enumerate(zip(
+                self.in_dir, self.out_dir, map(os.walk, self.in_dir))):
+            self._in_dir_count = i
             self.recursive_processing(base_dir, target_dir, paths)
 
     def recursive_processing(self, base_dir, target_dir, it):
@@ -593,7 +758,10 @@ class Gallery(object):
                            (self.dont_clear is True or f in self.dont_clear)),
                     code_example=self.code_examples.get(f),
                     supplementary_files=self.supplementary_files.get(f),
-                    thumbnail_figure=self.thumbnail_figures.get(f))
+                    other_supplementary_files=self.osf.get(f),
+                    thumbnail_figure=self.thumbnail_figures.get(f),
+                    url=self.get_url(f.replace(base_dir, '')),
+                    **self._nbp_kws)
                 for f in map(lambda f: os.path.join(file_dir, f),
                              filter(self.pattern.match, files))]
             readme_file = next(iter(readme_files.intersection(files)))
@@ -652,9 +820,56 @@ class Gallery(object):
         configuration of a sphinx application"""
         app.config.html_static_path.append(os.path.join(
             os.path.dirname(__file__), '_static'))
+        config = app.config.example_gallery_config
+
+        insert_bokeh = config.get('insert_bokeh')
+        if insert_bokeh:
+            if not isstring(insert_bokeh):
+                import bokeh
+                insert_bokeh = bokeh.__version__
+            app.add_stylesheet(
+                NotebookProcessor.BOKEH_STYLE_SHEET.format(
+                    version=insert_bokeh))
+            app.add_javascript(
+                NotebookProcessor.BOKEH_JS.format(version=insert_bokeh))
+
+        insert_bokeh_widgets = config.get('insert_bokeh_widgets')
+        if insert_bokeh_widgets:
+            if not isstring(insert_bokeh_widgets):
+                import bokeh
+                insert_bokeh_widgets = bokeh.__version__
+            app.add_stylesheet(
+                NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
+                    version=insert_bokeh_widgets))
+            app.add_javascript(
+                NotebookProcessor.BOKEH_WIDGETS_JS.format(
+                    version=insert_bokeh_widgets))
+
         if not app.config.process_examples:
             return
         cls(**app.config.example_gallery_config).process_directories()
+
+    def get_url(self, nbfile):
+        """Return the url corresponding to the given notebook file
+
+        Parameters
+        ----------
+        nbfile: str
+            The path of the notebook relative to the corresponding
+            :attr:``in_dir``
+
+        Returns
+        -------
+        str or None
+            The url or None if no url has been specified
+        """
+        urls = self.urls
+        if isinstance(urls, dict):
+            return urls.get(nbfile)
+        elif isstring(urls):
+            if not urls.endswith('/'):
+                urls += '/'
+            return urls + nbfile
 
 
 #: dictionary containing the configuration of the example gallery.
@@ -671,7 +886,9 @@ gallery_config = {
     'clear': True,
     'dont_clear': [],
     'code_examples': {},
-    'supplementary_files': {}}
+    'supplementary_files': {},
+    'insert_bokeh': False,
+    'insert_bokeh_widgets': False}
 
 
 #: Boolean controlling whether the rst files shall created and examples
@@ -683,6 +900,8 @@ def setup(app):
     app.add_config_value('process_examples', process_examples, 'html')
 
     app.add_config_value('example_gallery_config', gallery_config, 'html')
+
     app.add_stylesheet('example_gallery_styles.css')
 
     app.connect('builder-inited', Gallery.from_sphinx)
+

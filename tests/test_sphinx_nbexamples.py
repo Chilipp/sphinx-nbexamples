@@ -172,5 +172,21 @@ class TestGallery(unittest.TestCase):
                            'example_mpl_test_figure_chosen.ipynb'))
 
 
+def _test_url(url, *args, **kwargs):
+    if six.PY3:
+        from urllib import request
+        request.urlopen(url, *args, **kwargs)
+    else:
+        import urllib
+        urllib.urlopen(url, *args, **kwargs)
+
+# check if we are online by trying to connect to google
+try:
+    _test_url('https://www.google.de')
+    online = True
+except:
+    online = False
+
+
 if __name__ == '__main__':
     unittest.main()
