@@ -63,6 +63,12 @@ example_gallery_config = dict(
     urls='https://github.com/Chilipp/sphinx-nbexamples/blob/master/examples',
     )
 
+
+if on_rtd:
+    import subprocess as spr
+    spr.call([sys.executable] + '-m ipykernel install --user'.split())
+
+
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
 
