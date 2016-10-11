@@ -63,6 +63,8 @@ example_gallery_config = dict(
     urls='https://github.com/Chilipp/sphinx-nbexamples/blob/master/examples',
     )
 
+process_examples = not on_rtd
+
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
 
