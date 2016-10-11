@@ -6,5 +6,6 @@ dependencies:
     - ipython
     - nbconvert
     - sphinx
+    - jupyter_client
     - pip:
         - autodocsumm
