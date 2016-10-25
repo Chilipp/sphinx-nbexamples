@@ -62,7 +62,7 @@ Preprocessing the examples or not
 ---------------------------------
 When converting the examples, the default behaviour is to process the examples
 as well. This is a good possibility if you have an automatic building of the
-docs (e.g. using readthedocs_) to check that all your examples really work.
+docs (e.g. using readthedocs.org_) to check that all your examples really work.
 However, you might not want this for all your notebooks, because it eventually
 takes a lot of time to process all the notebooks or it requires additional
 libraries. Therefore you can use the ``'preprocess'`` and ``'dont_preprocess'``
@@ -128,7 +128,7 @@ here
 Including bokeh
 ---------------
 Note that bokeh needs a special treatment, especially when using the scheme
-from readthedocs_, because it requires additional style sheets and javascript
+from readthedocs.org_, because it requires additional style sheets and javascript
 files. So, if you have bokeh plots in your documentation, we recommend to
 
 1. use the :func:`bokeh.io.output_notebook` function in your examples
@@ -144,5 +144,30 @@ keyword, too.
     We cannot extract a thumbnail figure for bokeh notebooks. Hence, you should
     provide it by yourself (see :ref:`thumbnails`).
 
+Usage on readthedocs.org_
+---------------------
+When building your documentation on readthedocs.org_, you can either disable
+the preprocessing of the notebooks via the :confval:`process_examples`
+configuration value, e.g. via::
 
-.. _readthedocs: http://readthedocs.org
+    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+    process_examples = not on_rtd
+
+or::
+
+    example_gallery_config['dont_preprocess'] = on_rtd
+
+or you make sure that the virtual environment installs ipykernel and all the
+other necessary packages for your examples and include::
+
+    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+    if on_rtd:
+        import subprocess as spr
+        spr.call([sys.executable] +
+                 ('-m ipykernel install --user --name python3 '
+                  '--display-name python3').split())
+
+in your ``'conf.py'`` of your sphinx documentation. Change ``'python3'`` to
+the kernel name you are using in your examples.
+
+.. _readthedocs.org: http://readthedocs.org

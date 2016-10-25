@@ -60,7 +60,7 @@ not_document_data = 'sphinx_nbexamples.gallery_config'
 example_gallery_config = dict(
     dont_preprocess=['../examples/Subgallery/example_bokeh.ipynb'],
     insert_bokeh='0.12.1',
-    urls='https://github.com/Chilipp/sphinx-nbexamples/blob/master/examples',
+    urls='https://github.com/Chilipp/sphinx-nbexamples/blob/dev/examples',
     )
 
 
