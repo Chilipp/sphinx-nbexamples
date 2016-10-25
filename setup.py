@@ -11,7 +11,7 @@ def readme():
 
 
 setup(name='sphinx-nbexamples',
-      version='0.0.0.dev0',
+      version='0.1.0',
       description=(
           'Create an examples gallery with sphinx from Jupyter Notebooks'),
       long_description=readme(),
