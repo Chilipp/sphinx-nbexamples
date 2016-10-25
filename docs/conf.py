@@ -70,7 +70,7 @@ if on_rtd:
     spr.check_call([sys.executable] +
                    ('-m ipykernel install --user --name python3 '
                     '--display-name python3').split(),
-                   stderr=spr.PIPE, stdout=spr.PIPE)
+                   stderr=sys.stderr, stdout=sys.stdout)
 
 
 # The encoding of source files.
