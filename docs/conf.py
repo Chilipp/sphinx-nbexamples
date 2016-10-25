@@ -60,7 +60,7 @@ not_document_data = 'sphinx_nbexamples.gallery_config'
 example_gallery_config = dict(
     dont_preprocess=['../examples/Subgallery/example_bokeh.ipynb'],
     insert_bokeh='0.12.1',
-    urls='https://github.com/Chilipp/sphinx-nbexamples/blob/dev/examples',
+    urls='https://github.com/Chilipp/sphinx-nbexamples/blob/master/examples',
     )
 
 
@@ -85,7 +85,7 @@ add_module_names = False
 
 # General information about the project.
 project = u'sphinx-nbexamples'
-copyright = u'2015, Philipp Sommer'
+copyright = u'2016, Philipp Sommer'
 author = u'Philipp Sommer'
 
 # The version info for the project you're documenting, acts as replacement for

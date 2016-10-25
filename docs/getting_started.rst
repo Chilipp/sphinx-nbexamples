@@ -144,30 +144,4 @@ keyword, too.
     We cannot extract a thumbnail figure for bokeh notebooks. Hence, you should
     provide it by yourself (see :ref:`thumbnails`).
 
-Usage on readthedocs.org_
----------------------
-When building your documentation on readthedocs.org_, you can either disable
-the preprocessing of the notebooks via the :confval:`process_examples`
-configuration value, e.g. via::
-
-    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-    process_examples = not on_rtd
-
-or::
-
-    example_gallery_config['dont_preprocess'] = on_rtd
-
-or you make sure that the virtual environment installs ipykernel and all the
-other necessary packages for your examples and include::
-
-    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-    if on_rtd:
-        import subprocess as spr
-        spr.call([sys.executable] +
-                 ('-m ipykernel install --user --name python3 '
-                  '--display-name python3').split())
-
-in your ``'conf.py'`` of your sphinx documentation. Change ``'python3'`` to
-the kernel name you are using in your examples.
-
 .. _readthedocs.org: http://readthedocs.org

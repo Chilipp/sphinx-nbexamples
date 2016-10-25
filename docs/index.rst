@@ -76,6 +76,7 @@ Content
 .. toctree::
     :maxdepth: 1
 
+    installing
     getting_started
     examples/index
     api/sphinx_nbexamples

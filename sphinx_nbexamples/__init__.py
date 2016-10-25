@@ -12,8 +12,8 @@ for you sphinx configuration file ``'conf.py'``:
 Notes
 -----
 This module was motivated by the
-`sphinx-gallery <http://sphinx-gallery.readthedocs.org/en/latest/>` module
-0.1.1 by Oscar Najera and in fact uses it's html containers for creating the
+`sphinx-gallery <http://sphinx-gallery.readthedocs.org/en/latest/>`__ module
+by Oscar Najera and in fact uses parts of it's html template for including the
 thumbnails and the download containers"""
 from __future__ import division
 import datetime as dt
@@ -21,7 +21,6 @@ import os
 import os.path as osp
 import re
 import six
-from collections import defaultdict
 from itertools import chain
 import nbconvert
 import nbformat
@@ -904,4 +903,3 @@ def setup(app):
     app.add_stylesheet('example_gallery_styles.css')
 
     app.connect('builder-inited', Gallery.from_sphinx)
-
