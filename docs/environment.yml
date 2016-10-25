@@ -7,5 +7,6 @@ dependencies:
     - nbconvert
     - sphinx
     - jupyter_client
+    - ipykernel
     - pip:
         - autodocsumm
