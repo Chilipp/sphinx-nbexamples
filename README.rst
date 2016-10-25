@@ -46,25 +46,23 @@ Create an examples gallery with sphinx from Jupyter Notebooks
 
 .. end-badges
 
-Welcome! This sphinx extension provides some useful extensions to the Sphinxs
-autodoc_ extension. Those are
+Welcome! Similarly to Oscar Najeras sphinx-gallery_ module, this module intends
+to create an example gallery for your documentation. However, we don't use
+python scripts, instead we create the example gallery out of a bunch of jupyter
+notebooks using nbconvert.
 
-1. It creates a *Table of Contents* in the style of the autosummary_ extension
-   with methods, classes, functions and attributes
-2. As you can include the ``__init__`` method documentation for via the
-   autoclass_content_ configuration value,
-   we provide the *autodata_content* configuration value to include
-   the documentation from the ``__call__`` method
-3. You can exclude the string representation of specific objects. E.g. if you
-   have a large dictionary using the *not_document_data* configuration
-   value.
+This package can be used to
 
-See the `Documentation on Readthedocs`_ for more details.
+1. Put all the examples you prepared in different notebooks in an pictured
+   gallery
+2. use the same html (sphinx) scheme for your examples that you are using for
+   your documentation
+3. Include the example notebooks in an offline (pdf) documentation
+4. Include not only the code, but also the link to required supplementary files
+5. Include a link to the `Jupyter nbviewer`_
 
-.. _autodoc: http://www.sphinx-doc.org/en/stable/ext/autodoc.html
-.. _autoclass_content: http://www.sphinx-doc.org/en/stable/ext/autodoc.html#confval-autoclass_content
-.. _autosummary: http://www.sphinx-doc.org/en/stable/ext/autosummary.html
-.. _Documentation on Readthedocs: http://sphinx-nbexamples.readthedocs.io/en/latest/
+.. _Jupyter nbviewer: https://nbviewer.jupyter.org
+.. _sphinx-gallery: http://sphinx-gallery.readthedocs.org/en/latest/
 
 
 
