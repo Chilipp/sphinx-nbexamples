@@ -69,7 +69,8 @@ if on_rtd:
     print('Registering kernel')
     spr.check_call([sys.executable] +
                    ('-m ipykernel install --user --name python3 '
-                    '--display-name python3').split())
+                    '--display-name python3').split(),
+                   stderr=spr.PIPE, stdout=spr.PIPE)
 
 
 # The encoding of source files.
