@@ -66,14 +66,8 @@ example_gallery_config = dict(
 
 if on_rtd:
     import subprocess as spr
-    print('Registering kernel')
-    with open('output.log', 'w') as f:
-        spr.call([sys.executable] +
-                 ('-m ipykernel install --user --name python3 '
-                  '--display-name python3').split(),
-                 stderr=f, stdout=f)
-    with open('output.log') as f:
-        print(f.read())
+    spr.call([sys.executable] +
+             ('-m ipykernel install --user').split())
 
 
 # The encoding of source files.
