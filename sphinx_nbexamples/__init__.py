@@ -47,8 +47,12 @@ __author__ = "Philipp Sommer"
 
 logger = logging.getLogger(__name__)
 
-code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')
-inner_code_blocks = re.compile(r'(?<=.. code:: python\n)(?s)(.+?)(?=\n\S+|$)')
+if nbconvert.__version__ < '5.0':
+    code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')
+    inner_code_blocks = re.compile(r'(?<=.. code:: python\n)(?s)(.+?)(?=\n\S+|$)')
+else:
+    code_blocks = re.compile(r'\.\. code:: ipython\d\n(?s)(.+?)(?=\n\S+|$)')
+    inner_code_blocks = re.compile(r'(?<=.. code:: ipython\d\n)(?s)(.+?)(?=\n\S+|$)')
 magic_patt = re.compile(r'(?m)^(\s+)(%.*\n)')
 
 
