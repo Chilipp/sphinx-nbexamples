@@ -11,7 +11,7 @@ def readme():
 
 
 setup(name='sphinx-nbexamples',
-      version='0.1.1',
+      version='0.1.2',
       description=(
           'Create an examples gallery with sphinx from Jupyter Notebooks'),
       long_description=readme(),
@@ -42,6 +42,7 @@ setup(name='sphinx-nbexamples',
           'sphinx',
           'ipython',
           'nbconvert',
+          'Pillow',
       ],
       setup_requires=pytest_runner,
       tests_require=['pytest'],
