@@ -16,7 +16,7 @@ setup(name='sphinx-nbexamples',
           'Create an examples gallery with sphinx from Jupyter Notebooks'),
       long_description=readme(),
       classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Documentation',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
