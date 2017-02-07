@@ -1,15 +1,13 @@
-# nbformat
-#   https://nbformat.readthedocs.io/en/latest/changelog.html
-nbformat=4.1.0 # rg.filter: >= 4.1, <4.2
-
 # nbconvert
-#   https://nbformat.readthedocs.io/en/latest/changelog.html
-nbformat=4.2.0 # rg.filter: >= 4.2, <4.3
+#   https://nbconvert.readthedocs.io/en/latest/changelog.html
+nbconvert==5.1.1 # rg.filter: >= 4.2, <5.2
+
 
 # notebook
 #   https://jupyter-notebook.readthedocs.io/en/latest/changelog.html
-notebook=4.2.3 # rg.filter: >=4.2, <4.3
+notebook==4.3.1 # rq.filter: >=4.2, <4.4
 
 # Sphinx
 #   http://www.sphinx-doc.org/en/stable/changes.html
-sphinx=1.4.8 # rg.filter: >=1.3, <1.5
+sphinx==1.5.1 # rq.filter: >=1.3, <1.6
+
