@@ -3,5 +3,10 @@ dependencies:
     - matplotlib
     - bokeh
     - seaborn
+    - ipython
+    - nbconvert
+    - sphinx
+    - jupyter_client
+    - ipykernel
     - pip:
         - autodocsumm
