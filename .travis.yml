@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-  - "3.5"
+  - "3.6"
 # sudo is required for installing pandoc
 sudo: required
 env:
@@ -23,12 +23,7 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  # install pandoc
-  - 'wget https://github.com/jgm/pandoc/releases/download/1.17.2/pandoc-1.17.2-1-amd64.deb'
-  - sudo dpkg -i pandoc-1.17.2-1-amd64.deb
-  - conda create -n test_env python=$TRAVIS_PYTHON_VERSION matplotlib pillow sphinx=$SPHINX_VERSION jupyter
-  # update nbconvert to the actual version
-  - pip install -U nbconvert
+  - conda create -n test_env python=$TRAVIS_PYTHON_VERSION matplotlib pillow sphinx=$SPHINX_VERSION jupyter pandoc
   - source activate test_env
   - conda install notebook ipykernel
   - ipython kernel install --user
