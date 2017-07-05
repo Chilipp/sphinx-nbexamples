@@ -1,6 +1,6 @@
 # nbconvert
 #   https://nbconvert.readthedocs.io/en/latest/changelog.html
-nbconvert==5.1.1 # rg.filter: >= 4.2, <5.2
+nbconvert==5.2.1 # rg.filter: >= 4.2, <5.3
 
 
 # notebook
