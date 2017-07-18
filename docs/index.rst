@@ -81,6 +81,7 @@ Content
     linkgalleries
     examples/index
     api/sphinx_nbexamples
+    changelog
 
 
 Installation
