@@ -36,6 +36,7 @@ extensions = [
     'autodocsumm',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.extlinks',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
@@ -409,6 +410,10 @@ if six.PY3:
     intersphinx_mapping['python'] = ('https://docs.python.org/3.4/', None)
 else:
     intersphinx_mapping['python'] = ('https://docs.python.org/2.7/', None)
+
+
+extlinks = {'dudir': ('http://docutils.sourceforge.net/docs/ref/rst/'
+                      'directives.html#%s', '')}
 
 
 # -- Extension interface ------------------------------------------------------
