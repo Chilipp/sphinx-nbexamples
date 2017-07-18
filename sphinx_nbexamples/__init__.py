@@ -559,6 +559,7 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         thumb_file = os.path.join(thumb_dir,
                                   '%s_thumb.png' % self.reference)
         if os.path.exists(image_path):
+            logger.info('Scaling %s to thumbnail %s', image_path, thumb_file)
             self.scale_image(image_path, thumb_file, 400, 280)
         self.thumb_file = thumb_file
 
