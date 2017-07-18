@@ -31,6 +31,7 @@ install:
   - conda info -a
   - conda create -n test_env python=$TRAVIS_PYTHON_VERSION matplotlib pillow sphinx=$SPHINX_VERSION jupyter pandoc
   - source activate test_env
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then pip install pathlib; fi
   - conda install notebook ipykernel
   - ipython kernel install --user
   - pip install coveralls

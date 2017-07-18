@@ -7,6 +7,10 @@ from sphinx.application import Sphinx
 import glob
 import shutil
 import six
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
 
 
 if six.PY2:
@@ -36,24 +40,24 @@ def find_files(src_dir, pattern, skip_private=True):
             yield osp.join(root, f)
 
 
-class TestGallery(unittest.TestCase):
+class BaseTest(unittest.TestCase):
 
-    @classmethod
-    def setUp(cls):
-        cls.src_dir = mkdtemp(prefix='tmp_nbexamples_')
-        os.rmdir(cls.src_dir)
-        cls.out_dir = osp.join(cls.src_dir, 'build', 'html')
-        shutil.copytree(sphinx_supp, cls.src_dir)
-        cls.app = Sphinx(
-            srcdir=cls.src_dir, confdir=cls.src_dir, outdir=cls.out_dir,
-            doctreedir=osp.join(cls.src_dir, 'build', 'doctrees'),
+    def setUp(self):
+        self.src_dir = mkdtemp(prefix='tmp_nbexamples_')
+        os.rmdir(self.src_dir)
+        self.out_dir = osp.join(self.src_dir, 'build', 'html')
+        shutil.copytree(sphinx_supp, self.src_dir)
+        self.app = Sphinx(
+            srcdir=self.src_dir, confdir=self.src_dir, outdir=self.out_dir,
+            doctreedir=osp.join(self.src_dir, 'build', 'doctrees'),
             buildername='html')
-        cls.app.build()
-        cls.srcdir = sphinx_supp
+        self.app.build()
 
-    @classmethod
-    def tearDown(cls):
-        shutil.rmtree(cls.src_dir)
+    def tearDown(self):
+        shutil.rmtree(self.src_dir)
+
+
+class TestGallery(BaseTest):
 
     def test_files_exist(self):
         """Test if all notebooks are processed correctly"""
@@ -171,6 +175,37 @@ class TestGallery(unittest.TestCase):
         self.assertIn('example_mpl_test_figure_chosen.ipynb_thumb.png', html,
                       msg=('The wrong picture has been chosen for '
                            'example_mpl_test_figure_chosen.ipynb'))
+
+
+@unittest.skipIf(pathlib is None, 'The pathlib package is required!')
+class TestLinkGalleries(BaseTest):
+
+    def tearDown(self):
+        shutil.rmtree(self.src_dir2)
+        super(TestLinkGalleries, self).tearDown()
+
+    def test_linkgalleries(self):
+        """Test the directive"""
+        self.src_dir2 = self.src_dir
+        self.out_dir2 = self.out_dir
+        os.environ['LINKGALLERYTO'] = self.out_dir
+        fname = osp.join(
+            self.out_dir, 'examples', 'example_mpl_test.html')
+        self.assertTrue(osp.exists(fname), msg=fname + ' is missing!')
+        thumbnail = osp.join(
+            self.out_dir, '_images',
+            'gallery_' + self.src_dir.replace(os.path.sep, '_').lower() +
+            '_examples_example_mpl_test.ipynb_thumb.png')
+        self.assertTrue(osp.exists(thumbnail), msg=thumbnail + ' is missing!')
+        # create a setup with the links
+        self.setUp()
+        self.assertTrue
+        html_path = osp.join(self.out_dir, 'index.html')
+        self.assertTrue(osp.exists(html_path),
+                        msg=html_path + ' is missing!')
+        with open(html_path) as f:
+            html = f.read()
+        self.assertIn(thumbnail, html)
 
 
 def _test_url(url, *args, **kwargs):

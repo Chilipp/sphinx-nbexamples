@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import os.path as osp
 
 dirname = osp.dirname(__file__)
@@ -20,3 +21,20 @@ example_gallery_config = {
                  'example_hello_world.ipynb'): ['test2.txt']}}
 
 exclude_patterns = ['raw_examples']
+
+
+try:
+    import pathlib
+
+    def file2html(fname):
+        return pathlib.Path(fname).as_uri()
+
+except ImportError:
+    pathlib = None
+
+
+_link_dir = os.getenv('LINKGALLERYTO')
+if _link_dir:
+    extensions.append('sphinx.ext.intersphinx')
+    intersphinx_mapping = {'sphinx_nbexamples': (
+        file2html(_link_dir), osp.join(_link_dir, 'objects.inv'))}
