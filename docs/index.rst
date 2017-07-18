@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-==============================================
-Extending your autodoc API docs with a summary
-==============================================
+=============================================================
+Create an examples gallery with sphinx from Jupyter Notebooks
+=============================================================
 
 .. start-badges
 
@@ -78,6 +78,7 @@ Content
 
     installing
     getting_started
+    linkgalleries
     examples/index
     api/sphinx_nbexamples
 

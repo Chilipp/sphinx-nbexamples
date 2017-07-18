@@ -27,6 +27,10 @@ import nbformat
 from shutil import copyfile
 import logging
 import subprocess as spr
+from docutils.parsers.rst import Directive
+from docutils.parsers.rst import directives
+from docutils.statemachine import ViewList
+from docutils import nodes
 
 if six.PY2:
     from itertools import imap as map
@@ -41,7 +45,7 @@ except ImportError:
         from ordereddict import OrderedDict
 
 
-__version__ = '0.1.3'
+__version__ = '0.2.0'
 
 __author__ = "Philipp Sommer"
 
@@ -327,7 +331,7 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             try:
                 ep.preprocess(nb, {'metadata': {'path': in_dir}})
             except nbconvert.preprocessors.execute.CellExecutionError:
-                logging.getLogger(__name__).critical(
+                logger.critical(
                     'Error while processing %s!', self.infile, exc_info=True)
             else:
                 logger.info('Done. Seconds needed: %i',
@@ -549,12 +553,11 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
     def save_thumbnail(self, image_path):
         """Save the thumbnail image"""
-        base_image_name = os.path.splitext(os.path.basename(image_path))[0]
         thumb_dir = os.path.join(os.path.dirname(image_path), 'thumb')
         create_dirs(thumb_dir)
 
         thumb_file = os.path.join(thumb_dir,
-                                  'example_glr_%s_thumb.png' % base_image_name)
+                                  '%s_thumb.png' % self.reference)
         if os.path.exists(image_path):
             self.scale_image(image_path, thumb_file, 400, 280)
         self.thumb_file = thumb_file
@@ -578,8 +581,8 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             if not isstring(self.nb.metadata.thumbnail_figure):
                 ret = self.nb.metadata.thumbnail_figure
             else:
-                ret = osp.join(osp.dirname(self.outfile),
-                               self.nb.metadata.thumbnail_figure)
+                ret = osp.join(osp.dirname(self.outfile), 'images',
+                               osp.basename(self.nb.metadata.thumbnail_figure))
                 copyfile(osp.join(osp.dirname(self.infile),
                                   self.nb.metadata.thumbnail_figure),
                          ret)
@@ -875,6 +878,55 @@ class Gallery(object):
             return urls + nbfile
 
 
+def align(argument):
+    """Conversion function for the "align" option."""
+    return directives.choice(argument, ('left', 'center', 'right'))
+
+
+class LinkGalleriesDirective(Directive):
+
+    has_content = True
+
+    option_spec = {'alt': directives.unchanged,
+                   'height': directives.nonnegative_int,
+                   'width': directives.nonnegative_int,
+                   'scale': directives.nonnegative_int,
+                   'align': align,
+                   }
+
+    def create_image_nodes(self, link_url, header, thumb_url):
+        self.options['target'] = link_url
+        d = directives.images.Figure(
+            'image', [thumb_url], self.options, ViewList([header]),
+            self.lineno, self.content_offset, self.block_text, self.state,
+            self.state_machine)
+        return d.run()
+
+    def run(self):
+        self.env = self.state.document.settings.env
+        inventory = self.env.intersphinx_named_inventory
+        ret = []
+        for pkg_str in self.content:
+            pkg, directory = pkg_str.split()
+            try:
+                refs = inventory[pkg]['std:label']
+            except KeyError:
+                logger.warn('Could not load the inventory of %s!', pkg)
+                continue
+            base_url = self.env.config.intersphinx_mapping[pkg][0]
+            if not base_url.endswith('/'):
+                base_url += '/'
+            for key, val in refs.items():
+                if (key.startswith('gallery_' + directory) and
+                        key.endswith('.ipynb')):
+                    link_url = val[2]
+                    header = val[3]
+                    thumb_url = base_url + '_images/%s_thumb.png' % key
+                    ret.extend(self.create_image_nodes(
+                        link_url, header, thumb_url))
+        return ret
+
+
 #: dictionary containing the configuration of the example gallery.
 #:
 #: Possible keys for the dictionary are the initialization keys of the
@@ -905,5 +957,7 @@ def setup(app):
     app.add_config_value('example_gallery_config', gallery_config, 'html')
 
     app.add_stylesheet('example_gallery_styles.css')
+
+    app.add_directive('linkgalleries', LinkGalleriesDirective)
 
     app.connect('builder-inited', Gallery.from_sphinx)
