@@ -887,12 +887,7 @@ class LinkGalleriesDirective(Directive):
 
     has_content = True
 
-    option_spec = {'alt': directives.unchanged,
-                   'height': directives.nonnegative_int,
-                   'width': directives.nonnegative_int,
-                   'scale': directives.nonnegative_int,
-                   'align': align,
-                   }
+    option_spec = directives.images.Figure.option_spec
 
     def create_image_nodes(self, link_url, header, thumb_url):
         self.options['target'] = link_url
@@ -906,6 +901,10 @@ class LinkGalleriesDirective(Directive):
         self.env = self.state.document.settings.env
         inventory = self.env.intersphinx_named_inventory
         ret = []
+        # By default we use a width of 160 which is also used in the
+        # sphx-glr-thumbContainer
+        self.options.setdefault('width', '160')
+        self.options.setdefault('align', 'left')
         for pkg_str in self.content:
             pkg, directory = pkg_str.split()
             try:
