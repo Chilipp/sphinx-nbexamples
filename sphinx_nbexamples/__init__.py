@@ -226,7 +226,7 @@ class NotebookProcessor(object):
     @property
     def reference(self):
         """The rst label of this example"""
-        return 'gallery_' + self.outfile.replace(os.path.sep, '_')
+        return 'gallery_' + self.outfile.replace(os.path.sep, '_').lower()
 
     @property
     def url(self):
