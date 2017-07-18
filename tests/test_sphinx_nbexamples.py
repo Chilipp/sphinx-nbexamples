@@ -75,10 +75,11 @@ class TestGallery(unittest.TestCase):
 
     def test_thumbnail(self):
         """Test if the thumbnail has been inserted correctly"""
-        base = 'example_mpl_test'
+        base = osp.join(self.src_dir, 'examples', 'example_mpl_test.ipynb')
         outdir = self.out_dir
         thumb = osp.join(self.src_dir, 'examples', 'images', 'thumb',
-                         'example_glr_' + base + '_1_thumb.png')
+                         'gallery_' + base.replace(os.path.sep, '_').lower() +
+                         '_thumb.png')
         self.assertTrue(osp.exists(thumb), msg=thumb + ' is missing!')
         with open(osp.join(outdir, 'examples', 'index.html')) as f:
             index_html = f.read()
@@ -164,10 +165,10 @@ class TestGallery(unittest.TestCase):
                         msg=html_path + ' is missing!')
         with open(html_path) as f:
             html = f.read()
-        self.assertIn('test_image', html,
+        self.assertIn('example_failure.ipynb_thumb.png', html,
                       msg=('The wrong picture has been chosen for '
                            'example_failure.ipynb'))
-        self.assertIn('example_mpl_test_figure_chosen_0', html,
+        self.assertIn('example_mpl_test_figure_chosen.ipynb_thumb.png', html,
                       msg=('The wrong picture has been chosen for '
                            'example_mpl_test_figure_chosen.ipynb'))
 
