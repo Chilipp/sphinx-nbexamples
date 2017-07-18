@@ -909,14 +909,23 @@ class LinkGalleriesDirective(Directive):
 
     def run(self):
         self.env = self.state.document.settings.env
-        inventory = self.env.intersphinx_named_inventory
-        ret = []
+        ret = nodes.paragraph()
+        try:
+            inventory = self.env.intersphinx_named_inventory
+        except AttributeError:
+            logger.warn('The %s directive requires the sphinx.ext.intersphinx '
+                        'extension!', self.name)
+            return [ret]
         # By default we use a width of 160 which is also used in the
         # sphx-glr-thumbContainer
         self.options.setdefault('width', '160')
         self.options.setdefault('align', 'left')
         for pkg_str in self.content:
-            pkg, directory = pkg_str.split()
+            try:
+                pkg, directory = pkg_str.split()
+            except ValueError:
+                pkg, directory = pkg_str, ''
+            directory = directory.replace('/', '_').lower()
             try:
                 refs = inventory[pkg]['std:label']
             except KeyError:
@@ -933,7 +942,7 @@ class LinkGalleriesDirective(Directive):
                     thumb_url = base_url + '_images/%s_thumb.png' % key
                     ret.extend(self.create_image_nodes(
                         link_url, header, thumb_url))
-        return ret
+        return [ret]
 
 
 #: dictionary containing the configuration of the example gallery.
