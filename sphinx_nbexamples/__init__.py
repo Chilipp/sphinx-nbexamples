@@ -31,6 +31,7 @@ from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
+import sphinx
 
 if six.PY2:
     from itertools import imap as map
@@ -888,7 +889,15 @@ class LinkGalleriesDirective(Directive):
 
     has_content = True
 
-    option_spec = directives.images.Figure.option_spec
+    if sphinx.__version__ >= '1.4':
+        option_spec = directives.images.Figure.option_spec
+    else:
+        option_spec = {'alt': directives.unchanged,
+                       'height': directives.nonnegative_int,
+                       'width': directives.nonnegative_int,
+                       'scale': directives.nonnegative_int,
+                       'align': align,
+                       }
 
     def create_image_nodes(self, link_url, header, thumb_url):
         self.options['target'] = link_url
