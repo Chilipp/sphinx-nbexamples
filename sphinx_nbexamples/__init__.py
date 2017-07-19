@@ -31,7 +31,6 @@ from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
-import sphinx
 
 if six.PY2:
     from itertools import imap as map
@@ -46,7 +45,7 @@ except ImportError:
         from ordereddict import OrderedDict
 
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 __author__ = "Philipp Sommer"
 
@@ -54,10 +53,12 @@ logger = logging.getLogger(__name__)
 
 if nbconvert.__version__ < '5.0':
     code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')
-    inner_code_blocks = re.compile(r'(?<=.. code:: python\n)(?s)(.+?)(?=\n\S+|$)')
+    inner_code_blocks = re.compile(
+        r'(?<=.. code:: python\n)(?s)(.+?)(?=\n\S+|$)')
 else:
     code_blocks = re.compile(r'\.\. code:: ipython\d\n(?s)(.+?)(?=\n\S+|$)')
-    inner_code_blocks = re.compile(r'(?<=.. code:: ipython\d\n)(?s)(.+?)(?=\n\S+|$)')
+    inner_code_blocks = re.compile(
+        r'(?<=.. code:: ipython\d\n)(?s)(.+?)(?=\n\S+|$)')
 magic_patt = re.compile(r'(?m)^(\s+)(%.*\n)')
 
 
@@ -889,7 +890,7 @@ class LinkGalleriesDirective(Directive):
 
     has_content = True
 
-    if sphinx.__version__ >= '1.4':
+    if hasattr(directives, 'images'):
         option_spec = directives.images.Figure.option_spec
     else:
         option_spec = {'alt': directives.unchanged,

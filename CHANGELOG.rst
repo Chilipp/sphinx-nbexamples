@@ -1,3 +1,9 @@
+v0.2.1
+======
+Changed
+-------
+* Minor bug fix in option_spec of LinkGalleriesDirective
+
 v0.2.0
 ======
 Added
