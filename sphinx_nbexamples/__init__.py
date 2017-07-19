@@ -672,7 +672,7 @@ class Gallery(object):
             the notebooks that have bokeh loaded (using the installed or
             specified bokeh version)
         insert_bokeh_widgets: bool or str
-            If True, the bokeh widget js [2]_ is inserted in the notebooks that
+            If True, the bokeh widget js [3]_ is inserted in the notebooks that
             have bokeh loaded (using the installed or specified bokeh version)
 
         References

@@ -113,6 +113,7 @@ Including a link to the nbviewer
 If your notebooks are also published online, you can embed a link to the
 wonderful `jupyter nbviewer`_ in the documentation. You have multiple options
 here
+
 1. You can either specify the url for each notebook separately providing a
    mapping from notebook file to url in the ``'urls'`` keyword
 2. Include a url key in the metadata of your notebook
