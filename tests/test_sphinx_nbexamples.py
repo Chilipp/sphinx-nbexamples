@@ -181,9 +181,8 @@ class TestGallery(BaseTest):
 class TestLinkGalleries(BaseTest):
 
     def tearDown(self):
-        pass
-#        shutil.rmtree(self.src_dir2)
-#        super(TestLinkGalleries, self).tearDown()
+        shutil.rmtree(self.src_dir2)
+        super(TestLinkGalleries, self).tearDown()
 
     def test_linkgalleries(self):
         """Test the directive"""
