@@ -4,6 +4,8 @@ import os.path as osp
 
 dirname = osp.dirname(__file__)
 
+project = 'sphinx-test'
+
 master_doc = 'index'
 
 extensions = ['sphinx_nbexamples']

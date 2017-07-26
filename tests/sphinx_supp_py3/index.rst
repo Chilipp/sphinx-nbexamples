@@ -7,4 +7,5 @@ Example documentation
 
 .. linkgalleries::
 
+    sphinx-test
     sphinx_nbexamples
