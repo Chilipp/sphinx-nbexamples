@@ -3,45 +3,46 @@ Create an examples gallery with sphinx from Jupyter Notebooks
 =============================================================
 
 .. start-badges
+.. only:: html
 
-.. list-table::
-    :stub-columns: 1
-    :widths: 10 90
+    .. list-table::
+        :stub-columns: 1
+        :widths: 10 90
 
-    * - docs
-      - |docs|
-    * - tests
-      - |travis| |requires| |coveralls|
-    * - package
-      - |version| |supported-versions| |supported-implementations|
+        * - docs
+          - |docs|
+        * - tests
+          - |travis| |requires| |coveralls|
+        * - package
+          - |version| |supported-versions| |supported-implementations|
 
-.. |docs| image:: http://readthedocs.org/projects/sphinx-nbexamples/badge/?version=latest
-    :alt: Documentation Status
-    :target: http://sphinx-nbexamples.readthedocs.io/en/latest/?badge=latest
+    .. |docs| image:: https://readthedocs.org/projects/sphinx-nbexamples/badge/?version=latest
+        :alt: Documentation Status
+        :target: http://sphinx-nbexamples.readthedocs.io/en/latest/?badge=latest
 
-.. |travis| image:: https://travis-ci.org/Chilipp/sphinx-nbexamples.svg?branch=master
-    :alt: Travis
-    :target: https://travis-ci.org/Chilipp/sphinx-nbexamples
+    .. |travis| image:: https://travis-ci.org/Chilipp/sphinx-nbexamples.svg?branch=master
+        :alt: Travis
+        :target: https://travis-ci.org/Chilipp/sphinx-nbexamples
 
-.. |coveralls| image:: https://coveralls.io/repos/github/Chilipp/sphinx-nbexamples/badge.svg?branch=master
-    :alt: Coverage
-    :target: https://coveralls.io/github/Chilipp/sphinx-nbexamples?branch=master
+    .. |coveralls| image:: https://coveralls.io/repos/github/Chilipp/sphinx-nbexamples/badge.svg?branch=master
+        :alt: Coverage
+        :target: https://coveralls.io/github/Chilipp/sphinx-nbexamples?branch=master
 
-.. |requires| image:: https://requires.io/github/Chilipp/sphinx-nbexamples/requirements.svg?branch=master
-    :alt: Requirements Status
-    :target: https://requires.io/github/Chilipp/sphinx-nbexamples/requirements/?branch=master
+    .. |requires| image:: https://requires.io/github/Chilipp/sphinx-nbexamples/requirements.svg?branch=master
+        :alt: Requirements Status
+        :target: https://requires.io/github/Chilipp/sphinx-nbexamples/requirements/?branch=master
 
-.. |version| image:: https://img.shields.io/pypi/v/sphinx-nbexamples.svg?style=flat
-    :alt: PyPI Package latest release
-    :target: https://pypi.python.org/pypi/sphinx-nbexamples
+    .. |version| image:: https://img.shields.io/pypi/v/sphinx-nbexamples.svg?style=flat
+        :alt: PyPI Package latest release
+        :target: https://pypi.python.org/pypi/sphinx-nbexamples
 
-.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/sphinx-nbexamples.svg?style=flat
-    :alt: Supported versions
-    :target: https://pypi.python.org/pypi/sphinx-nbexamples
+    .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/sphinx-nbexamples.svg?style=flat
+        :alt: Supported versions
+        :target: https://pypi.python.org/pypi/sphinx-nbexamples
 
-.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/sphinx-nbexamples.svg?style=flat
-    :alt: Supported implementations
-    :target: https://pypi.python.org/pypi/sphinx-nbexamples
+    .. |supported-implementations| image:: https://img.shields.io/pypi/implementation/sphinx-nbexamples.svg?style=flat
+        :alt: Supported implementations
+        :target: https://pypi.python.org/pypi/sphinx-nbexamples
 
 
 .. end-badges
@@ -110,4 +111,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
