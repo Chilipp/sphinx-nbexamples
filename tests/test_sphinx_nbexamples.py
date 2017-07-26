@@ -181,8 +181,9 @@ class TestGallery(BaseTest):
 class TestLinkGalleries(BaseTest):
 
     def tearDown(self):
-        shutil.rmtree(self.src_dir2)
-        super(TestLinkGalleries, self).tearDown()
+        pass
+#        shutil.rmtree(self.src_dir2)
+#        super(TestLinkGalleries, self).tearDown()
 
     def test_linkgalleries(self):
         """Test the directive"""
@@ -206,6 +207,17 @@ class TestLinkGalleries(BaseTest):
         with open(html_path) as f:
             html = f.read()
         self.assertIn(thumbnail, html)
+
+        # test with new thumbnail to test the linkgalleries with it's own
+        # project
+        thumbnails = glob.glob(osp.join(
+            self.out_dir, '_images',
+            'gallery_' + self.src_dir.replace(os.path.sep, '_').lower() +
+            '_examples_example_mpl_test.ipynb_thumb*.png'))
+        self.assertTrue(thumbnails)  # check that some thumbnails are found
+        self.assertTrue(any(osp.relpath(f, self.out_dir) in html
+                            for f in thumbnails),
+                        msg='None of %s found in %s' % (thumbnails, html))
 
 
 def _test_url(url, *args, **kwargs):
