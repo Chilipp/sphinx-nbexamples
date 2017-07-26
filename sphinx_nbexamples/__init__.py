@@ -890,26 +890,44 @@ class LinkGalleriesDirective(Directive):
 
     has_content = True
 
-    if hasattr(directives, 'images'):
-        option_spec = directives.images.Figure.option_spec
-    else:
-        option_spec = {'alt': directives.unchanged,
-                       'height': directives.nonnegative_int,
-                       'width': directives.nonnegative_int,
-                       'scale': directives.nonnegative_int,
-                       'align': align,
-                       }
+    option_spec = {}
 
-    def create_image_nodes(self, link_url, header, thumb_url):
-        self.options['target'] = link_url
-        d = directives.images.Figure(
-            'image', [thumb_url], self.options, ViewList([header]),
+    def create_image_nodes(self, header, thumb_url, key, link_url=None):
+        options = {'target': link_url} if link_url else {}
+        d1 = directives.misc.Raw(
+            'raw', ['html'], {}, ViewList([
+                '<div class="sphx-glr-thumbContainer">']
+                ),
             self.lineno, self.content_offset, self.block_text, self.state,
             self.state_machine)
-        return d.run()
+        d = directives.images.Figure(
+            'image', [thumb_url], options, ViewList([':ref:`%s`' % key]),
+            self.lineno, self.content_offset, self.block_text, self.state,
+            self.state_machine)
+        d2 = directives.misc.Raw(
+            'raw', ['html'], {}, ViewList(['</div>']),
+            self.lineno, self.content_offset, self.block_text, self.state,
+            self.state_machine)
+        return list(chain(d1.run(), d.run(), d2.run()))
+
+    def get_outdirs(self):
+        conf = self.env.config.example_gallery_config
+        gallery_dirs = conf.get('gallery_dirs')
+        if not gallery_dirs:
+            examples_dirs = conf.get('example_dirs', ['../examples'])
+            if isinstance(examples_dirs, six.string_types):
+                examples_dirs = [examples_dirs]
+            gallery_dirs = list(map(osp.basename, examples_dirs))
+        if isinstance(gallery_dirs, six.string_types):
+            gallery_dirs = [gallery_dirs]
+        for i, s in enumerate(gallery_dirs):
+            if not s.endswith(os.path.sep):
+                gallery_dirs[i] += os.path.sep
+        return gallery_dirs
 
     def run(self):
         self.env = self.state.document.settings.env
+        conf = self.env.config
         ret = nodes.paragraph()
         try:
             inventory = self.env.intersphinx_named_inventory
@@ -917,32 +935,61 @@ class LinkGalleriesDirective(Directive):
             logger.warn('The %s directive requires the sphinx.ext.intersphinx '
                         'extension!', self.name)
             return [ret]
-        # By default we use a width of 160 which is also used in the
-        # sphx-glr-thumbContainer
-        self.options.setdefault('width', '160')
-        self.options.setdefault('align', 'left')
         for pkg_str in self.content:
             try:
                 pkg, directory = pkg_str.split()
             except ValueError:
                 pkg, directory = pkg_str, ''
-            directory = directory.replace('/', '_').lower()
-            try:
-                refs = inventory[pkg]['std:label']
-            except KeyError:
-                logger.warn('Could not load the inventory of %s!', pkg)
-                continue
-            base_url = self.env.config.intersphinx_mapping[pkg][0]
-            if not base_url.endswith('/'):
-                base_url += '/'
-            for key, val in refs.items():
-                if (key.startswith('gallery_' + directory) and
-                        key.endswith('.ipynb')):
-                    link_url = val[2]
-                    header = val[3]
-                    thumb_url = base_url + '_images/%s_thumb.png' % key
-                    ret.extend(self.create_image_nodes(
-                        link_url, header, thumb_url))
+            directory_ = directory.replace('/', '_').lower()
+            if pkg == conf.project:
+                pass
+                if not directory:
+                    directories = self.get_outdirs()
+                else:
+                    directories = [directory]
+                for directory in directories:
+                    for file_dir, dirs, files in os.walk(directory):
+                        if not file_dir.endswith(osp.sep):
+                            file_dir += osp.sep
+                        file_dir_ = file_dir.replace(osp.sep, '_').lower()
+                        if 'index.rst' in files:
+                            for f in files:
+                                if f.endswith('.ipynb'):
+                                    ref = 'gallery_' + file_dir_ + f
+                                    thumb = osp.join(
+                                        file_dir, 'images', 'thumb',
+                                        ref + '_thumb.png')
+                                    if osp.isabs(thumb):
+                                        thumb = osp.relpath(thumb,
+                                                            self.env.srcdir)
+                                        print('+' * 80)
+                                        print(thumb)
+                                        print('-' * 80)
+                                    header = ':ref:`%s`' % (ref, )
+                                    ret.extend(self.create_image_nodes(
+                                        header, thumb, ref))
+            else:
+                try:
+                    refs = inventory[pkg]['std:label']
+                except KeyError:
+                    logger.warn('Could not load the inventory of %s!', pkg)
+                    continue
+                base_url = self.env.config.intersphinx_mapping[pkg][0]
+                if not base_url.endswith('/'):
+                    base_url += '/'
+                for key, val in refs.items():
+                    if (key.startswith('gallery_' + directory_) and
+                            key.endswith('.ipynb')):
+                        link_url = val[2]
+                        header = val[3]
+                        thumb_url = base_url + '_images/%s_thumb.png' % key
+                        ret.extend(self.create_image_nodes(
+                            header, thumb_url, '%s:%s' % (pkg, key),
+                            link_url))
+        ret.extend(directives.misc.Raw(
+            'raw', ['html'], {}, ViewList(["<div style='clear:both'></div>"]),
+            self.lineno, self.content_offset, self.block_text, self.state,
+            self.state_machine).run())
         return [ret]
 
 

@@ -60,15 +60,38 @@ The outputs of
 
     .. linkgalleries::
 
-        sphinx_nbexamples
+        psyplot
 
-are two links to the examples in our :ref:`example gallery <gallery_examples>`
+are links to the examples in
+:ref:`psyplots example gallery <psyplot:gallery_examples>`
 with the corresponding images:
 
 .. linkgalleries::
 
-    sphinx_nbexamples
+    psyplot
 
-.. raw:: html
+where we have defined the :confval:`intersphinx_mapping` configuration value in
+the ``conf.py`` script like
 
-    <div style='clear:both'></div>
+.. code-block:: python
+
+    intersphinx_mapping = {
+        'psyplot': ('http://psyplot.readthedocs.io/en/latest/', None),
+        }
+
+We can also insert links into the library of this project by just inserting the
+name of the project. In our case (``sphinx-nbexamples``) this would then look
+like
+
+.. linkgalleries::
+
+    sphinx-nbexamples
+
+The :rst:dir:`linkgalleries` directive also accepts multiple packages, e.g.
+
+.. code-block:: rst
+
+    .. linkgalleries::
+
+        psyplot
+        sphinx-nbexamples
