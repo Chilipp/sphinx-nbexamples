@@ -67,9 +67,18 @@ are links to the examples in
 
 This then transforms to
 
-.. linkgalleries::
+.. only:: html
 
-    psyplot
+    .. linkgalleries::
+
+        psyplot
+
+.. only:: latex
+
+    .. linkgalleries::
+        :width: 160
+
+        psyplot
 
 In the ``conf.py`` script, the :confval:`intersphinx_mapping` configuration
 value then looks like
@@ -85,9 +94,18 @@ inserting the name of the project.
 
 In our case (``sphinx-nbexamples``) this then looks like
 
-.. linkgalleries::
+.. only:: html
 
-    sphinx-nbexamples
+    .. linkgalleries::
+
+        sphinx-nbexamples
+
+.. only:: latex
+
+    .. linkgalleries::
+        :width: 160
+
+        sphinx-nbexamples
 
 The :rst:dir:`linkgalleries` directive also accepts multiple packages, e.g.
 
