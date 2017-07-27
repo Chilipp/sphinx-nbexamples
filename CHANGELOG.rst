@@ -1,3 +1,17 @@
+v0.2.2
+======
+Added
+-----
+* The linkgalleries directive now can also insert links to the current
+  sphinx project that is build
+
+Changed
+-------
+* the linkgalleries directive uses the styles from the example_gallery_styles.css,
+  i.e. the same style as it is used in the processed example gallery.
+* due to that, the linkgalleries directive only works for html now
+
+
 v0.2.1
 ======
 Changed
