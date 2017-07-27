@@ -65,13 +65,11 @@ The outputs of
 are links to the examples in
 :ref:`psyplots example gallery <psyplot:gallery_examples>`.
 
-.. only:: html
+This then transforms to
 
-    This then transforms to
+.. linkgalleries::
 
-    .. linkgalleries::
-
-        psyplot
+    psyplot
 
 In the ``conf.py`` script, the :confval:`intersphinx_mapping` configuration
 value then looks like
@@ -85,13 +83,11 @@ value then looks like
 We can also insert links into the library of the current project by just
 inserting the name of the project.
 
-.. only:: html
+In our case (``sphinx-nbexamples``) this then looks like
 
-    In our case (``sphinx-nbexamples``) this then looks like
+.. linkgalleries::
 
-    .. linkgalleries::
-
-        sphinx-nbexamples
+    sphinx-nbexamples
 
 The :rst:dir:`linkgalleries` directive also accepts multiple packages, e.g.
 
