@@ -890,10 +890,19 @@ class LinkGalleriesDirective(Directive):
 
     has_content = True
 
-    option_spec = {}
+    if hasattr(directives, 'images'):
+        option_spec = directives.images.Figure.option_spec
+    else:
+        option_spec = {'alt': directives.unchanged,
+                       'height': directives.nonnegative_int,
+                       'width': directives.nonnegative_int,
+                       'scale': directives.nonnegative_int,
+                       'align': align
+                       }
 
     def create_image_nodes(self, header, thumb_url, key, link_url=None):
         options = {'target': link_url} if link_url else {}
+        options.update(self.options)
         d1 = directives.misc.Raw(
             'raw', ['html'], {}, ViewList([
                 '<div class="sphx-glr-thumbContainer">']
