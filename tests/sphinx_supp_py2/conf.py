@@ -20,7 +20,8 @@ example_gallery_config = {
                  'example_mpl_test_figure_chosen.ipynb'): 0},
     'supplementary_files': {
         osp.join(dirname, 'raw_examples',
-                 'example_hello_world.ipynb'): ['test2.txt']}}
+                 'example_hello_world.ipynb'): ['test2.txt']},
+    'remove_cell_tags': ['remove_in_docs']}
 
 exclude_patterns = ['raw_examples']
 
