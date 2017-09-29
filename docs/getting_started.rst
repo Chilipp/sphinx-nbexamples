@@ -1,3 +1,5 @@
+.. currentmodule:: sphinx_nbexamples
+
 .. getting_started:
 
 Getting started
@@ -146,3 +148,27 @@ keyword, too.
     provide it by yourself (see :ref:`thumbnails`).
 
 .. _readthedocs.org: http://readthedocs.org
+
+.. _tag-removal:
+
+Removing cells
+--------------
+Using notebook 5.0 and nbconvert 5.3 and higher, you can also tag cells
+and specify them for removal in the converted rst file.
+
+In the jupyter notebook click on
+:menuselection:`View --> Cell Toolbar --> Tags` and assign a tag to the cell
+you want to remove. You can then use one or more of the keywords
+
+remove_all_outputs_tags
+    removes all outputs
+remove_cell_tags
+    removes the entire cell
+remove_input_tags
+    removes the input and only keeps the output
+remove_single_output_tags
+    Removes an individual output
+
+in the :confval:`example_gallery_config`. See the :class:`Gallery`
+and :class:`nbconvert.preprocessors.Preprocessor` documentation for more
+information.

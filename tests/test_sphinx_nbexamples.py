@@ -127,6 +127,16 @@ class TestGallery(BaseTest):
             re.search(r'(?<!print\(.)Something %magic like.+(?!\))', rst),
             msg="Print output '%%magic like' not found in \n%s!" % rst)
 
+    def test_tag_removal(self):
+        """Test whether the tagged cell has been removed correctly"""
+        base = 'example_tag_removal'
+        rst_path = osp.join(self.src_dir, 'examples', base) + '.rst'
+        py_path = osp.join(self.src_dir, 'examples', base) + '.py'
+        with open(rst_path) as f:
+            self.assertNotIn('This should be removed!', f.read())
+        with open(py_path) as f:
+            self.assertIn('This should be removed!', f.read())
+
     def test_supplementary_files(self):
         """Test whether the supplementary files are inserted corretly"""
         rst_copy = osp.join(self.src_dir, 'examples', 'sub', 'test.txt')

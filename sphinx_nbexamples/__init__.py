@@ -25,6 +25,7 @@ from itertools import chain
 import nbconvert
 import nbformat
 from shutil import copyfile
+from copy import deepcopy
 import logging
 import subprocess as spr
 from docutils.parsers.rst import Directive
@@ -45,7 +46,7 @@ except ImportError:
         from ordereddict import OrderedDict
 
 
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 
 __author__ = "Philipp Sommer"
 
@@ -240,11 +241,15 @@ class NotebookProcessor(object):
         if url is not None:
             return nbviewer_link(url)
 
+    @property
+    def remove_tags(self):
+        return any(self.tag_options.values())
+
     def __init__(self, infile, outfile, disable_warnings=True,
                  preprocess=True, clear=True, code_example=None,
                  supplementary_files=None, other_supplementary_files=None,
                  thumbnail_figure=None, url=None, insert_bokeh=False,
-                 insert_bokeh_widgets=False):
+                 insert_bokeh_widgets=False, tag_options={}):
         """
         Parameters
         ----------
@@ -277,7 +282,10 @@ class NotebookProcessor(object):
         insert_bokeh: False or str
             The version string for bokeh to use for the style sheet
         insert_bokeh_widgets: bool or str
-            The version string for bokeh to use for the widgets style sheet"""
+            The version string for bokeh to use for the widgets style sheet
+        tag_options: dict
+            A dictionary with traitlets for the
+            :class:`nbconvert.preprocessors.TagRemovePreprocessor`"""
         self.infile = infile
         self.outfile = outfile
         self.preprocess = preprocess
@@ -289,6 +297,7 @@ class NotebookProcessor(object):
         self._url = url
         self.insert_bokeh = insert_bokeh
         self.insert_bokeh_widgets = insert_bokeh_widgets
+        self.tag_options = tag_options
         self.process_notebook(disable_warnings)
         self.create_thumb()
 
@@ -343,7 +352,16 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
         self.py_file = self.get_out_file('py')
 
-        self.create_rst(nb, in_dir, odir)
+        if self.remove_tags:
+            tp = nbconvert.preprocessors.TagRemovePreprocessor(timeout=300)
+            for key, val in self.tag_options.items():
+                setattr(tp, key, set(val))
+            nb4rst = deepcopy(nb)
+            tp.preprocess(nb4rst, {'metadata': {'path': in_dir}})
+        else:
+            nb4rst = nb
+
+        self.create_rst(nb4rst, in_dir, odir)
 
         if self.clear:
             cp.preprocess(nb, {'metadata': {'path': in_dir}})
@@ -610,7 +628,9 @@ class Gallery(object):
                  dont_preprocess=[], preprocess=True, clear=True,
                  dont_clear=[], code_examples={}, supplementary_files={},
                  other_supplementary_files={}, thumbnail_figures={},
-                 urls=None, insert_bokeh=False, insert_bokeh_widgets=False):
+                 urls=None, insert_bokeh=False, insert_bokeh_widgets=False,
+                 remove_all_outputs_tags=set(), remove_cell_tags=set(),
+                 remove_input_tags=set(), remove_single_output_tags=set()):
         """
         Parameters
         ----------
@@ -675,6 +695,18 @@ class Gallery(object):
         insert_bokeh_widgets: bool or str
             If True, the bokeh widget js [3]_ is inserted in the notebooks that
             have bokeh loaded (using the installed or specified bokeh version)
+        remove_all_outputs_tags: set
+            Tags indicating cells for which the outputs are to be removed,
+            matches tags in cell.metadata.tags.
+        remove_cell_tags: set
+            Tags indicating which cells are to be removed, matches tags in
+            cell.metadata.tags.
+        remove_input_tags: set
+            Tags indicating cells for which input is to be removed,
+            matches tags in cell.metadata.tags.
+        remove_single_output_tags: set
+            Tags indicating which individual outputs are to be removed, matches
+            output i tags in cell.outputs[i].metadata.tags.
 
         References
         ----------
@@ -721,8 +753,14 @@ class Gallery(object):
         if insert_bokeh_widgets and not isstring(insert_bokeh_widgets):
             import bokeh
             insert_bokeh_widgets = bokeh.__version__
+        tag_options = {
+            'remove_all_outputs_tags': remove_all_outputs_tags,
+            'remove_cell_tags': remove_cell_tags,
+            'remove_input_tags': remove_input_tags,
+            'remove_single_output_tags': remove_single_output_tags}
         self._nbp_kws = {'insert_bokeh': insert_bokeh,
-                         'insert_bokeh_widgets': insert_bokeh_widgets}
+                         'insert_bokeh_widgets': insert_bokeh_widgets,
+                         'tag_options': tag_options}
 
     def process_directories(self):
         """Create the rst files from the input directories in the
