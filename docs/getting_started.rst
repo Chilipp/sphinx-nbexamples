@@ -172,3 +172,13 @@ remove_single_output_tags
 in the :confval:`example_gallery_config`. See the :class:`Gallery`
 and :class:`nbconvert.preprocessors.Preprocessor` documentation for more
 information.
+
+To remove the entire cell, for example, set
+
+.. code-block:: python
+
+    example_gallery_config = {
+        'remove_cell_tags': ['the-tag-of-the-cell-you-want-to-remove'],
+        }
+
+in the ``'conf.py'`` of your docs.
