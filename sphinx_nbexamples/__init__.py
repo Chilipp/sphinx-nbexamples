@@ -1009,9 +1009,6 @@ class LinkGalleriesDirective(Directive):
                                     if osp.isabs(thumb):
                                         thumb = osp.relpath(thumb,
                                                             self.env.srcdir)
-                                        print('+' * 80)
-                                        print(thumb)
-                                        print('-' * 80)
                                     header = ':ref:`%s`' % (ref, )
                                     ret.extend(self.create_image_nodes(
                                         header, thumb, ref))
