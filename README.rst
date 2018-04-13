@@ -13,7 +13,9 @@ Create an examples gallery with sphinx from Jupyter Notebooks
     * - tests
       - |travis| |requires| |coveralls|
     * - package
-      - |version| |supported-versions| |supported-implementations|
+      - |version| |conda| |github|
+    * - implementations
+      - |supported-versions| |supported-implementations|
 
 .. |docs| image:: http://readthedocs.org/projects/sphinx-nbexamples/badge/?version=latest
     :alt: Documentation Status
@@ -33,15 +35,23 @@ Create an examples gallery with sphinx from Jupyter Notebooks
 
 .. |version| image:: https://img.shields.io/pypi/v/sphinx-nbexamples.svg?style=flat
     :alt: PyPI Package latest release
-    :target: https://pypi.python.org/pypi/sphinx-nbexamples
+    :target: https://pypi.org/project/sphinx-nbexamples/
+
+.. |conda| image:: https://anaconda.org/conda-forge/sphinx-nbexamples/badges/version.svg
+    :alt: conda
+    :target: https://anaconda.org/conda-forge/sphinx-nbexamples
+
+.. |github| image:: https://img.shields.io/github/release/Chilipp/sphinx-nbexamples.svg
+    :target: https://github.com/Chilipp/sphinx-nbexamples/releases/latest
+    :alt: Latest github release
 
 .. |supported-versions| image:: https://img.shields.io/pypi/pyversions/sphinx-nbexamples.svg?style=flat
     :alt: Supported versions
-    :target: https://pypi.python.org/pypi/sphinx-nbexamples
+    :target: https://pypi.org/project/sphinx-nbexamples/
 
 .. |supported-implementations| image:: https://img.shields.io/pypi/implementation/sphinx-nbexamples.svg?style=flat
     :alt: Supported implementations
-    :target: https://pypi.python.org/pypi/sphinx-nbexamples
+    :target: https://pypi.org/project/sphinx-nbexamples/
 
 
 .. end-badges
