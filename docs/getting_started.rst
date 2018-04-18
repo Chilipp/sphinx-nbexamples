@@ -46,16 +46,16 @@ important features since we convert the notebook to a single html page:
 
 Choosing the examples
 ---------------------
-The three keywords ``'examples_dirs', 'gallery_dirs'``, and ``'pattern'`` can
+The three keywords ``'examples_dirs'``, ``'gallery_dirs'``, and ``'pattern'`` can
 be used to select which notebooks shall be converted. The value for
-``'example_dirs'`` is the path to the directory where your raw jupyter
+``'examples_dirs'`` is the path to the directory where your raw jupyter
 notebooks are located. The ``'gallery_dirs'`` key on the other hand will point
 to the directories where the converted notebooks will be. You can also provide
 a list of example directories to create multiple galleries.
 
 Finally the ``'pattern'`` corresponds to the filename pattern for the example
 notebooks. Using the default pattern (``'example_.+.ipynb'``) implies, that
-all your notebooks in the ``'example_dirs'`` starts with ``'example_'``
+all your notebooks in the ``'examples_dirs'`` starts with ``'example_'``
 
 
 .. _preprocessing:
