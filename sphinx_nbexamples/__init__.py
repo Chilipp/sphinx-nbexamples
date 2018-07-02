@@ -26,7 +26,10 @@ import nbconvert
 import nbformat
 from shutil import copyfile
 from copy import deepcopy
-import logging
+try:
+    from sphinx.util import logging
+except ImportError:
+    import logging
 import subprocess as spr
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
@@ -459,8 +462,12 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             py_file = os.path.basename(self.py_file)
         else:
             py_file = self.py_file
+        try:
+            level = logger.logger.level
+        except AttributeError:
+            level = logger.level
         spr.call(['jupyter', 'nbconvert', '--to=python',
-                  '--output=' + py_file, '--log-level=%s' % logger.level,
+                  '--output=' + py_file, '--log-level=%s' % level,
                   self.outfile])
         with open(self.py_file) as f:
             py_content = f.read()
