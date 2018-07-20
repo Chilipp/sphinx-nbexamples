@@ -1,3 +1,12 @@
+v0.3.1
+======
+This patch fixes some minor logging issues with sphinx >1.7.6
+
+Changed
+-------
+* Minor compatibility fix for using the logger with Sphinx
+* Corrected typos `see PR #1 <https://github.com/Chilipp/sphinx-nbexamples/pull/1>`__
+
 v0.3.0
 ======
 Added
