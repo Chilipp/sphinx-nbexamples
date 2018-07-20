@@ -35,7 +35,7 @@ except (ImportError, AttributeError):
 
 try:
     warn = logger.warn
-except AttributeError:
+except AttributeError:  # necessary for python 2.7
     warn = logger.warning
 
 import subprocess as spr
