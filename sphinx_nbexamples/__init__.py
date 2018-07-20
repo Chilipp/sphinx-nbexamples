@@ -28,8 +28,10 @@ from shutil import copyfile
 from copy import deepcopy
 try:
     from sphinx.util import logging
-except ImportError:
+    logger = logging.getLogger(__name__)
+except (ImportError, AttributeError):
     import logging
+    logger = logging.getLogger(__name__)
 import subprocess as spr
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
@@ -52,8 +54,6 @@ except ImportError:
 __version__ = '0.3.0'
 
 __author__ = "Philipp Sommer"
-
-logger = logging.getLogger(__name__)
 
 if nbconvert.__version__ < '5.0':
     code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')
