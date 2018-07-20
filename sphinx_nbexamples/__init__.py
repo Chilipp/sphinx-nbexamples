@@ -32,6 +32,12 @@ try:
 except (ImportError, AttributeError):
     import logging
     logger = logging.getLogger(__name__)
+
+try:
+    warn = logger.warn
+except AttributeError:
+    warn = logger.warning
+
 import subprocess as spr
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
@@ -986,8 +992,8 @@ class LinkGalleriesDirective(Directive):
         try:
             inventory = self.env.intersphinx_named_inventory
         except AttributeError:
-            logger.warn('The %s directive requires the sphinx.ext.intersphinx '
-                        'extension!', self.name)
+            warn('The %s directive requires the sphinx.ext.intersphinx '
+                 'extension!', self.name)
             return [ret]
         for pkg_str in self.content:
             try:
@@ -1023,7 +1029,7 @@ class LinkGalleriesDirective(Directive):
                 try:
                     refs = inventory[pkg]['std:label']
                 except KeyError:
-                    logger.warn('Could not load the inventory of %s!', pkg)
+                    warn('Could not load the inventory of %s!', pkg)
                     continue
                 base_url = self.env.config.intersphinx_mapping[pkg][0]
                 if not base_url.endswith('/'):
