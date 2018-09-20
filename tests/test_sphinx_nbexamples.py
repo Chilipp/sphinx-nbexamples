@@ -4,6 +4,7 @@ import os.path as osp
 import unittest
 from tempfile import mkdtemp
 from sphinx.application import Sphinx
+import sphinx
 import glob
 import shutil
 import six
@@ -142,9 +143,13 @@ class TestGallery(BaseTest):
         rst_copy = osp.join(self.src_dir, 'examples', 'sub', 'test.txt')
         self.assertTrue(
             osp.exists(rst_copy), msg=rst_copy + ' is missing')
-        html_download = osp.join(self.out_dir, '_downloads', 'test.txt')
+        if sphinx.__version__ < '1.8.0':
+            html_download = osp.join(self.out_dir, '_downloads', 'test.txt')
+        else:
+            html_download = osp.join(
+                self.out_dir, '_downloads', '*', 'test.txt')
         self.assertTrue(
-            osp.exists(html_download), msg=html_download + ' is missing')
+            glob.glob(html_download), msg=html_download + ' is missing')
         rst_path = osp.join(self.src_dir, 'examples', 'sub',
                             'example_supplementary_files.rst')
         with open(rst_path) as f:
