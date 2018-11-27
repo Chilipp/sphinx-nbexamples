@@ -1,0 +1,9 @@
+matplotlib
+bokeh
+seaborn
+ipython
+nbconvert
+sphinx
+jupyter_client
+ipykernel
+autodocsumm
