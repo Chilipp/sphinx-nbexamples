@@ -18,10 +18,11 @@ matrix:
       env: SPHINX_VERSION=1.5
     - python: "3.7"
       env: SPHINX_VERSION=1.6
-apt:
+addons:
+  apt:
     packages:
-        - matplotlib
-        - pandoc
+      - matplotlib
+      - pandoc
 install:
   - pip install pillow sphinx==$SPHINX_VERSION jupyter
   - source activate test_env
