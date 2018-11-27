@@ -28,7 +28,7 @@ install:
   - if [[ $SPHINX_VERSION == "" ]]; then
       pip install pillow sphinx jupyter coveralls;
     else
-      pip install pillow sphinx=$SPHINX_VERSION jupyter coveralls;
+      pip install pillow sphinx==$SPHINX_VERSION jupyter coveralls;
     fi
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then pip install pathlib; fi
   - python setup.py install
