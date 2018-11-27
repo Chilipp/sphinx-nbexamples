@@ -23,7 +23,7 @@ apt:
         - matplotlib
         - pandoc
 install:
-  - pip install pillow sphinx=$SPHINX_VERSION jupyter
+  - pip install pillow sphinx==$SPHINX_VERSION jupyter
   - source activate test_env
   - if [[ $SPHINX_VERSION == "" ]]; then
       pip install pillow sphinx jupyter coveralls;
