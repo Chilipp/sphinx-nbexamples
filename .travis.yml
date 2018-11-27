@@ -21,18 +21,14 @@ matrix:
 addons:
   apt:
     packages:
-      - matplotlib
       - pandoc
 install:
-  - pip install pillow sphinx==$SPHINX_VERSION jupyter
-  - source activate test_env
-  - if [[ $SPHINX_VERSION == "" ]]; then
-      pip install pillow sphinx jupyter coveralls;
-    else
-      pip install pillow sphinx==$SPHINX_VERSION jupyter coveralls;
-    fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then pip install pathlib; fi
-  - python setup.py install
+  - PACKAGES="matplotlib pillow jupyter coveralls sphinx"
+  - if [[ $SPHINX_VERSION != "" ]]; then PACKAGES="$PACKAGES==$SPHINX_VERSION"; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then PACKAGES="$PACKAGES pathlib"; fi
+  - echo $PACKAGES
+  - pip install $PACKAGES
+  - python -m pip install . --no-deps --ignore-installed -vvv
 
 script:
   - coverage run --source=sphinx_nbexamples setup.py pytest
