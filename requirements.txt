@@ -5,7 +5,7 @@ nbconvert==5.4 # rq.filter: >= 4.2
 
 # notebook
 #   https://jupyter-notebook.readthedocs.io/en/latest/changelog.html
-notebook==5.7 # rq.filter: >=4.2
+notebook==5.7.8 # rq.filter: >=4.2
 
 # Sphinx
 #   http://www.sphinx-doc.org/en/stable/changes.html
