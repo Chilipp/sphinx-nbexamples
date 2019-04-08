@@ -220,7 +220,7 @@ class TestLinkGalleries(BaseTest):
                         msg=html_path + ' is missing!')
         with open(html_path) as f:
             html = f.read()
-        self.assertIn(thumbnail, html)
+        self.assertIn(osp.basename(thumbnail), html)
 
         # test with new thumbnail to test the linkgalleries with it's own
         # project
