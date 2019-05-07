@@ -380,7 +380,8 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
 
     def create_rst(self, nb, in_dir, odir):
         """Create the rst file from the notebook node"""
-        raw_rst, resources = nbconvert.export_by_name('rst', nb)
+        exporter = nbconvert.RSTExporter()
+        raw_rst, resources = exporter.from_notebook_node(nb)
         # remove ipython magics
         rst_content = ''
         i0 = 0
