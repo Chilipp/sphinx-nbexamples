@@ -191,6 +191,15 @@ class TestGallery(BaseTest):
                       msg=('The wrong picture has been chosen for '
                            'example_mpl_test_figure_chosen.ipynb'))
 
+    def test_toctree(self):
+        """Test whether the toctree depth is working"""
+        html_path = osp.join(self.out_dir, 'examples', 'index.html')
+        self.assertTrue(osp.exists(html_path),
+                        msg=html_path + ' is missing!')
+        with open(html_path) as f:
+            html = f.read()
+        self.assertNotIn('With a subsection', html)
+
 
 @unittest.skipIf(pathlib is None, 'The pathlib package is required!')
 class TestLinkGalleries(BaseTest):
