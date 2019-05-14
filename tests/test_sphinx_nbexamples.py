@@ -71,8 +71,9 @@ class TestGallery(BaseTest):
                             msg=base + '.ipynb is missing')
             self.assertTrue(osp.exists(base + '.rst'),
                             msg=base + '.rst is missing')
-            self.assertTrue(osp.exists(base + '.py'),
-                            msg=base + '.py is missing')
+            script = base + ('.sh' if base.endswith('bash') else '.py')
+            self.assertTrue(osp.exists(script),
+                            msg=script + ' is missing')
             html = osp.splitext(
                 f.replace(raw_dir, osp.join(
                     self.out_dir, 'examples')))[0] + '.html'
@@ -199,6 +200,14 @@ class TestGallery(BaseTest):
         with open(html_path) as f:
             html = f.read()
         self.assertNotIn('With a subsection', html)
+
+    def test_bash(self):
+        """Test a non-python notebook"""
+        base = 'example_bash'
+        rst_path = osp.join(self.src_dir, 'examples', base) + '.rst'
+        with open(rst_path) as f:
+            rst = f.read()
+        self.assertIn('hello, world', rst)
 
 
 @unittest.skipIf(pathlib is None, 'The pathlib package is required!')

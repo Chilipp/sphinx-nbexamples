@@ -7,3 +7,4 @@ sphinx
 jupyter_client
 ipykernel
 autodocsumm
+bash_kernel
