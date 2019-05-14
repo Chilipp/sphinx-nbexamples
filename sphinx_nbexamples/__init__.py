@@ -838,8 +838,14 @@ class Gallery(object):
             if label:
                 labels[label] = nbps
         s = ".. _%s:\n\n" % this_label
-        with open(os.path.join(file_dir, readme_file)) as f:
-            s += f.read().rstrip() + '\n\n'
+
+        if readme_file.endswith('.md'):
+            s += spr.check_output(
+                ['pandoc', os.path.join(file_dir, readme_file),
+                 '-t', 'rst']).decode('utf-8').rstrip() + '\n\n'
+        else:
+            with open(os.path.join(file_dir, readme_file)) as f:
+                s += f.read().rstrip() + '\n\n'
 
         s += "\n\n.. toctree::\n\n"
         s += ''.join('    %s\n' % os.path.splitext(os.path.basename(
