@@ -191,6 +191,14 @@ class TestGallery(BaseTest):
                       msg=('The wrong picture has been chosen for '
                            'example_mpl_test_figure_chosen.ipynb'))
 
+    def test_bash(self):
+        """Test a non-python notebook"""
+        base = 'example_bash'
+        rst_path = osp.join(self.src_dir, 'examples', base) + '.rst'
+        with open(rst_path) as f:
+            rst = f.read()
+        self.assertIn('hello, world', rst)
+
 
 @unittest.skipIf(pathlib is None, 'The pathlib package is required!')
 class TestLinkGalleries(BaseTest):

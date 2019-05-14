@@ -26,11 +26,12 @@ addons:
     packages:
       - pandoc
 install:
-  - PACKAGES="matplotlib pillow jupyter coveralls sphinx"
+  - PACKAGES="matplotlib pillow jupyter coveralls bash_kernel sphinx"
   - if [[ $SPHINX_VERSION != "" ]]; then PACKAGES="$PACKAGES==$SPHINX_VERSION"; fi
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then PACKAGES="$PACKAGES pathlib"; fi
   - echo $PACKAGES
   - pip install $PACKAGES
+  - python -m bash_kernel.install  # install bash kernel
   - python -m pip install . --no-deps --ignore-installed -vvv
   - pip freeze  # show installed packages
 
