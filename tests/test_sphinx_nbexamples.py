@@ -71,8 +71,9 @@ class TestGallery(BaseTest):
                             msg=base + '.ipynb is missing')
             self.assertTrue(osp.exists(base + '.rst'),
                             msg=base + '.rst is missing')
-            self.assertTrue(osp.exists(base + '.py'),
-                            msg=base + '.py is missing')
+            script = base + ('.sh' if base.endswith('bash') else '.py')
+            self.assertTrue(osp.exists(script),
+                            msg=script + ' is missing')
             html = osp.splitext(
                 f.replace(raw_dir, osp.join(
                     self.out_dir, 'examples')))[0] + '.html'
