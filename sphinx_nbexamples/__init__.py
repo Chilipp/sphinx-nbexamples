@@ -359,7 +359,8 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             if disable_warnings:
                 nb.cells.pop(i)
 
-        ext = nb.metadata.language_info['file_extension']
+        language_info = getattr(nb.metadata, 'language_info', {})
+        ext = language_info.get('file_extension', 'py')
         self.script = self.get_out_file(ext.lstrip('.'))
 
         if self.remove_tags:
@@ -416,17 +417,17 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             rst_content = raw_rst
         rst_content = '.. _%s:\n\n' % self.reference + \
             rst_content
-        language = nb.metadata.language_info.get('name', 'Python')
+        language_info = getattr(nb.metadata, 'language_info', {})
         url = self.url
         if url is not None:
             rst_content += self.CODE_DOWNLOAD_NBVIEWER.format(
-                language=language,
+                language=language_info.get('name', 'Python'),
                 script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile),
                 url=url)
         else:
             rst_content += self.CODE_DOWNLOAD.format(
-                language=language,
+                language=language_info.get('name', 'Python'),
                 script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile))
         supplementary_files = self.supplementary_files
