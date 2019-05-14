@@ -331,7 +331,13 @@ class NotebookProcessor(object):
             timeout=300)
 
         self.nb = nb = nbformat.read(infile, nbformat.current_nbformat)
+
+        language_info = getattr(nb.metadata, 'language_info', {})
+        ext = language_info.get('file_extension', 'py')
+        self.script = self.get_out_file(ext.lstrip('.'))
+
         # disable warnings in the rst file
+        disable_warnings = disable_warnings and self.script.endswith('.py')
         if disable_warnings:
             for i, cell in enumerate(nb.cells):
                 if cell['cell_type'] == 'code':
@@ -358,10 +364,6 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
                             (dt.datetime.now() - t).seconds)
             if disable_warnings:
                 nb.cells.pop(i)
-
-        language_info = getattr(nb.metadata, 'language_info', {})
-        ext = language_info.get('file_extension', 'py')
-        self.script = self.get_out_file(ext.lstrip('.'))
 
         if self.remove_tags:
             tp = nbconvert.preprocessors.TagRemovePreprocessor(timeout=300)
