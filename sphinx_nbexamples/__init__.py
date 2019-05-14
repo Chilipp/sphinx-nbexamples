@@ -111,7 +111,7 @@ class NotebookProcessor(object):
 
     .. container:: sphx-glr-download
 
-        **Download python file:** :download:`{pyfile}`
+        **Download {language} script:** :download:`{script}`
 
         **Download IPython notebook:** :download:`{nbfile}`
 """
@@ -359,7 +359,8 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             if disable_warnings:
                 nb.cells.pop(i)
 
-        self.py_file = self.get_out_file('py')
+        ext = nb.metadata.language_info['file_extension']
+        self.script = self.get_out_file(ext.lstrip('.'))
 
         if self.remove_tags:
             tp = nbconvert.preprocessors.TagRemovePreprocessor(timeout=300)
@@ -415,15 +416,18 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             rst_content = raw_rst
         rst_content = '.. _%s:\n\n' % self.reference + \
             rst_content
+        language = nb.metadata.language_info.get('name', 'Python')
         url = self.url
         if url is not None:
             rst_content += self.CODE_DOWNLOAD_NBVIEWER.format(
-                pyfile=os.path.basename(self.py_file),
+                language=language,
+                script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile),
                 url=url)
         else:
             rst_content += self.CODE_DOWNLOAD.format(
-                pyfile=os.path.basename(self.py_file),
+                language=language,
+                script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile))
         supplementary_files = self.supplementary_files
         other_supplementary_files = self.other_supplementary_files
@@ -466,22 +470,24 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         # some weird like '[0;31mOut[[1;31m5[0;31m]: [0m' which look like
         # color information if we allow the call of nbconvert.export_python
         if list(map(int, re.findall('\d+', nbconvert.__version__))) >= [4, 2]:
-            py_file = os.path.basename(self.py_file)
+            script = os.path.basename(self.script)
         else:
-            py_file = self.py_file
+            script = self.script
         try:
             level = logger.logger.level
         except AttributeError:
             level = logger.level
-        spr.call(['jupyter', 'nbconvert', '--to=python',
-                  '--output=' + py_file, '--log-level=%s' % level,
+        spr.call(['jupyter', 'nbconvert', '--to=script',
+                  '--output=' + os.path.splitext(script)[0], '--log-level=%s' % level,
                   self.outfile])
-        with open(self.py_file) as f:
+        if not script.endswith('.py'):
+            return
+        with open(self.script) as f:
             py_content = f.read()
         # comment out ipython magics
         py_content = re.sub('^\s*get_ipython\(\).magic.*', '# \g<0>',
                             py_content, flags=re.MULTILINE)
-        with open(self.py_file, 'w') as f:
+        with open(self.script, 'w') as f:
             f.write(py_content)
 
     def data_download(self, files):
