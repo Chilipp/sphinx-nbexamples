@@ -111,7 +111,7 @@ class NotebookProcessor(object):
 
     .. container:: sphx-glr-download
 
-        **Download python file:** :download:`{pyfile}`
+        **Download {language} script:** :download:`{script}`
 
         **Download IPython notebook:** :download:`{nbfile}`
 """
@@ -359,7 +359,9 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             if disable_warnings:
                 nb.cells.pop(i)
 
-        self.py_file = self.get_out_file('py')
+        language_info = getattr(nb.metadata, 'language_info', {})
+        ext = language_info.get('file_extension', 'py')
+        self.script = self.get_out_file(ext.lstrip('.'))
 
         if self.remove_tags:
             tp = nbconvert.preprocessors.TagRemovePreprocessor(timeout=300)
@@ -415,15 +417,18 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
             rst_content = raw_rst
         rst_content = '.. _%s:\n\n' % self.reference + \
             rst_content
+        language_info = getattr(nb.metadata, 'language_info', {})
         url = self.url
         if url is not None:
             rst_content += self.CODE_DOWNLOAD_NBVIEWER.format(
-                pyfile=os.path.basename(self.py_file),
+                language=language_info.get('name', 'Python'),
+                script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile),
                 url=url)
         else:
             rst_content += self.CODE_DOWNLOAD.format(
-                pyfile=os.path.basename(self.py_file),
+                language=language_info.get('name', 'Python'),
+                script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile))
         supplementary_files = self.supplementary_files
         other_supplementary_files = self.other_supplementary_files
@@ -466,22 +471,24 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         # some weird like '[0;31mOut[[1;31m5[0;31m]: [0m' which look like
         # color information if we allow the call of nbconvert.export_python
         if list(map(int, re.findall('\d+', nbconvert.__version__))) >= [4, 2]:
-            py_file = os.path.basename(self.py_file)
+            script = os.path.basename(self.script)
         else:
-            py_file = self.py_file
+            script = self.script
         try:
             level = logger.logger.level
         except AttributeError:
             level = logger.level
-        spr.call(['jupyter', 'nbconvert', '--to=python',
-                  '--output=' + py_file, '--log-level=%s' % level,
+        spr.call(['jupyter', 'nbconvert', '--to=script',
+                  '--output=' + os.path.splitext(script)[0], '--log-level=%s' % level,
                   self.outfile])
-        with open(self.py_file) as f:
+        if not script.endswith('.py'):
+            return
+        with open(self.script) as f:
             py_content = f.read()
         # comment out ipython magics
         py_content = re.sub('^\s*get_ipython\(\).magic.*', '# \g<0>',
                             py_content, flags=re.MULTILINE)
-        with open(self.py_file, 'w') as f:
+        with open(self.script, 'w') as f:
             f.write(py_content)
 
     def data_download(self, files):
@@ -644,7 +651,8 @@ class Gallery(object):
                  other_supplementary_files={}, thumbnail_figures={},
                  urls=None, insert_bokeh=False, insert_bokeh_widgets=False,
                  remove_all_outputs_tags=set(), remove_cell_tags=set(),
-                 remove_input_tags=set(), remove_single_output_tags=set()):
+                 remove_input_tags=set(), remove_single_output_tags=set(),
+                 toctree_depth=-1):
         """
         Parameters
         ----------
@@ -661,7 +669,7 @@ class Gallery(object):
             Default: ``'example_.+.ipynb'``
         disable_warnings: bool
             Boolean controlling whether warnings shall be disabled when
-            processing the examples. Defaultt: True
+            processing the examples. Default: True
         preprocess: bool or list of str
             If True, all examples (except those specified in the
             `dont_preprocess` item) will be preprocessed when creating the rst
@@ -721,6 +729,9 @@ class Gallery(object):
         remove_single_output_tags: set
             Tags indicating which individual outputs are to be removed, matches
             output i tags in cell.outputs[i].metadata.tags.
+        toctree_depth: int
+            Depth to expand table-of-contents trees to. To disable, set to 0. For
+            automatic depth, set to -1. Default: -1
 
         References
         ----------
@@ -758,6 +769,7 @@ class Gallery(object):
         self.supplementary_files = supplementary_files
         self.osf = other_supplementary_files
         self.thumbnail_figures = thumbnail_figures
+        self.toctree_depth = toctree_depth
         if urls is None or isinstance(urls, (dict, six.string_types)):
             urls = [urls] * len(self.in_dir)
         self._all_urls = urls
@@ -847,15 +859,19 @@ class Gallery(object):
             with open(os.path.join(file_dir, readme_file)) as f:
                 s += f.read().rstrip() + '\n\n'
 
-        s += "\n\n.. toctree::\n\n"
-        s += ''.join('    %s\n' % os.path.splitext(os.path.basename(
-            nbp.get_out_file()))[0] for nbp in this_nbps)
-        for d in dirs:
-            findex = os.path.join(d, 'index.rst')
-            if os.path.exists(os.path.join(foutdir, findex)):
-                s += '    %s\n' % os.path.splitext(findex)[0]
+        if self.toctree_depth:
+            s += "\n\n.. toctree::"
+            if self.toctree_depth > 0:
+                s += "\n    :maxdepth: %d" % self.toctree_depth
+            s += "\n\n"
+            s += ''.join('    %s\n' % os.path.splitext(os.path.basename(
+                nbp.get_out_file()))[0] for nbp in this_nbps)
+            for d in dirs:
+                findex = os.path.join(d, 'index.rst')
+                if os.path.exists(os.path.join(foutdir, findex)):
+                    s += '    %s\n' % os.path.splitext(findex)[0]
 
-        s += '\n'
+            s += '\n'
 
         for nbp in this_nbps:
             code_div = nbp.code_div
