@@ -651,7 +651,8 @@ class Gallery(object):
                  other_supplementary_files={}, thumbnail_figures={},
                  urls=None, insert_bokeh=False, insert_bokeh_widgets=False,
                  remove_all_outputs_tags=set(), remove_cell_tags=set(),
-                 remove_input_tags=set(), remove_single_output_tags=set()):
+                 remove_input_tags=set(), remove_single_output_tags=set(),
+                 toctree_depth=-1):
         """
         Parameters
         ----------
@@ -668,7 +669,7 @@ class Gallery(object):
             Default: ``'example_.+.ipynb'``
         disable_warnings: bool
             Boolean controlling whether warnings shall be disabled when
-            processing the examples. Defaultt: True
+            processing the examples. Default: True
         preprocess: bool or list of str
             If True, all examples (except those specified in the
             `dont_preprocess` item) will be preprocessed when creating the rst
@@ -728,6 +729,9 @@ class Gallery(object):
         remove_single_output_tags: set
             Tags indicating which individual outputs are to be removed, matches
             output i tags in cell.outputs[i].metadata.tags.
+        toctree_depth: int
+            Depth to expand table-of-contents trees to. To disable, set to 0. For
+            automatic depth, set to -1. Default: -1
 
         References
         ----------
@@ -765,6 +769,7 @@ class Gallery(object):
         self.supplementary_files = supplementary_files
         self.osf = other_supplementary_files
         self.thumbnail_figures = thumbnail_figures
+        self.toctree_depth = toctree_depth
         if urls is None or isinstance(urls, (dict, six.string_types)):
             urls = [urls] * len(self.in_dir)
         self._all_urls = urls
@@ -848,15 +853,19 @@ class Gallery(object):
         with open(os.path.join(file_dir, readme_file)) as f:
             s += f.read().rstrip() + '\n\n'
 
-        s += "\n\n.. toctree::\n\n"
-        s += ''.join('    %s\n' % os.path.splitext(os.path.basename(
-            nbp.get_out_file()))[0] for nbp in this_nbps)
-        for d in dirs:
-            findex = os.path.join(d, 'index.rst')
-            if os.path.exists(os.path.join(foutdir, findex)):
-                s += '    %s\n' % os.path.splitext(findex)[0]
+        if self.toctree_depth:
+            s += "\n\n.. toctree::"
+            if self.toctree_depth > 0:
+                s += "\n    :maxdepth: %d" % self.toctree_depth
+            s += "\n\n"
+            s += ''.join('    %s\n' % os.path.splitext(os.path.basename(
+                nbp.get_out_file()))[0] for nbp in this_nbps)
+            for d in dirs:
+                findex = os.path.join(d, 'index.rst')
+                if os.path.exists(os.path.join(foutdir, findex)):
+                    s += '    %s\n' % os.path.splitext(findex)[0]
 
-        s += '\n'
+            s += '\n'
 
         for nbp in this_nbps:
             code_div = nbp.code_div

@@ -21,7 +21,9 @@ example_gallery_config = {
     'supplementary_files': {
         osp.join(dirname, 'raw_examples',
                  'example_hello_world.ipynb'): ['test2.txt']},
-    'remove_cell_tags': ['remove_in_docs']}
+    'remove_cell_tags': ['remove_in_docs'],
+    'toctree_depth': 2,
+    }
 
 exclude_patterns = ['raw_examples']
 
