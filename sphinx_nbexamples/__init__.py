@@ -113,12 +113,20 @@ class NotebookProcessor(object):
 
         **Download {language} script:** :download:`{script}`
 
-        **Download IPython notebook:** :download:`{nbfile}`
+        **Download Jupyter notebook:** :download:`{nbfile}`
 """
 
     #: base string for viewing the notebook in the jupyter nbviewer
     CODE_DOWNLOAD_NBVIEWER = CODE_DOWNLOAD + """
         **View the notebook in the** `Jupyter nbviewer <{url}>`__
+"""
+
+    #: base string for viewing the notebook in the binder
+    CODE_RUN_BINDER = """
+        **Run the notebook** |binder|
+
+        .. |binder| image:: https://mybinder.org/badge_logo.svg
+            :target: {url}?filepath={nbfile}
 """
 
     #: base string for downloading supplementary data
@@ -258,7 +266,8 @@ class NotebookProcessor(object):
                  preprocess=True, clear=True, code_example=None,
                  supplementary_files=None, other_supplementary_files=None,
                  thumbnail_figure=None, url=None, insert_bokeh=False,
-                 insert_bokeh_widgets=False, tag_options={}):
+                 insert_bokeh_widgets=False, tag_options={},
+                 binder_url=None):
         """
         Parameters
         ----------
@@ -294,7 +303,10 @@ class NotebookProcessor(object):
             The version string for bokeh to use for the widgets style sheet
         tag_options: dict
             A dictionary with traitlets for the
-            :class:`nbconvert.preprocessors.TagRemovePreprocessor`"""
+            :class:`nbconvert.preprocessors.TagRemovePreprocessor`
+        binder_url: str
+            Link to the repository on mybinder.org or equivalent
+            """
         self.infile = infile
         self.outfile = outfile
         self.preprocess = preprocess
@@ -307,6 +319,7 @@ class NotebookProcessor(object):
         self.insert_bokeh = insert_bokeh
         self.insert_bokeh_widgets = insert_bokeh_widgets
         self.tag_options = tag_options
+        self.binder_url = binder_url
         self.process_notebook(disable_warnings)
         self.create_thumb()
 
@@ -432,6 +445,9 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
                 language=language_info.get('name', 'Python'),
                 script=os.path.basename(self.script),
                 nbfile=os.path.basename(self.outfile))
+        if self.binder_url is not None:
+            rst_content += self.CODE_RUN_BINDER.format(
+                url=self.binder_url, nbfile=self.outfile)
         supplementary_files = self.supplementary_files
         other_supplementary_files = self.other_supplementary_files
         if supplementary_files or other_supplementary_files:
@@ -654,7 +670,7 @@ class Gallery(object):
                  urls=None, insert_bokeh=False, insert_bokeh_widgets=False,
                  remove_all_outputs_tags=set(), remove_cell_tags=set(),
                  remove_input_tags=set(), remove_single_output_tags=set(),
-                 toctree_depth=-1):
+                 toctree_depth=-1, binder_url=None):
         """
         Parameters
         ----------
@@ -732,8 +748,10 @@ class Gallery(object):
             Tags indicating which individual outputs are to be removed, matches
             output i tags in cell.outputs[i].metadata.tags.
         toctree_depth: int
-            Depth to expand table-of-contents trees to. To disable, set to 0. For
-            automatic depth, set to -1. Default: -1
+            Depth to expand table-of-contents trees to. To disable, set to 0.
+            For automatic depth, set to -1. Default: -1
+        binder_url: str
+            Link to the notebook on mybinder.org or equivalent
 
         References
         ----------
@@ -772,6 +790,7 @@ class Gallery(object):
         self.osf = other_supplementary_files
         self.thumbnail_figures = thumbnail_figures
         self.toctree_depth = toctree_depth
+        self.binder_url = binder_url
         if urls is None or isinstance(urls, (dict, six.string_types)):
             urls = [urls] * len(self.in_dir)
         self._all_urls = urls
@@ -788,7 +807,9 @@ class Gallery(object):
             'remove_single_output_tags': remove_single_output_tags}
         self._nbp_kws = {'insert_bokeh': insert_bokeh,
                          'insert_bokeh_widgets': insert_bokeh_widgets,
-                         'tag_options': tag_options}
+                         'tag_options': tag_options,
+                         'binder_url': self.binder_url,
+                         }
 
     def process_directories(self):
         """Create the rst files from the input directories in the
