@@ -349,22 +349,25 @@ class NotebookProcessor(object):
         ext = language_info.get('file_extension', 'py')
         self.script = self.get_out_file(ext.lstrip('.'))
 
-        # disable warnings in the rst file
         disable_warnings = disable_warnings and self.script.endswith('.py')
-        if disable_warnings:
-            for i, cell in enumerate(nb.cells):
-                if cell['cell_type'] == 'code':
-                    cell = cell.copy()
-                    break
-            cell = cell.copy()
-            cell.source = """
+
+        # write and process rst_file
+        if self.preprocess:
+
+            # disable warnings in the rst file
+            if disable_warnings:
+                for i, cell in enumerate(nb.cells):
+                    if cell['cell_type'] == 'code':
+                        cell = cell.copy()
+                        break
+                cell = cell.copy()
+                cell.source = """
 import logging
 logging.captureWarnings(True)
 logging.getLogger('py.warnings').setLevel(logging.ERROR)
 """
-            nb.cells.insert(i, cell)
-        # write and process rst_file
-        if self.preprocess:
+                nb.cells.insert(i, cell)
+
             t = dt.datetime.now()
             logger.info('Processing %s', self.infile)
             try:
