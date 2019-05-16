@@ -192,6 +192,15 @@ class TestGallery(BaseTest):
                       msg=('The wrong picture has been chosen for '
                            'example_mpl_test_figure_chosen.ipynb'))
 
+    def test_md_readme(self):
+        """Test the conversion of README.md"""
+        html_path = osp.join(self.out_dir, 'examples', 'sub', 'index.html')
+        self.assertTrue(osp.exists(html_path),
+                        msg=html_path + ' is missing!')
+        with open(html_path) as f:
+            html = f.read()
+        self.assertIn('a markdown link</a>', html)
+
     def test_toctree(self):
         """Test whether the toctree depth is working"""
         html_path = osp.join(self.out_dir, 'examples', 'index.html')
