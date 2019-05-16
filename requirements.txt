@@ -1,9 +1,4 @@
 matplotlib
 bokeh
 seaborn
-ipython
-nbconvert
-sphinx
-jupyter_client
-ipykernel
 bash_kernel
