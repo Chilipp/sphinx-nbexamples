@@ -33,6 +33,8 @@ except (ImportError, AttributeError):
     import logging
     logger = logging.getLogger(__name__)
 
+import sphinx
+
 try:
     warn = logger.warn
 except AttributeError:  # necessary for python 2.7
@@ -1109,7 +1111,10 @@ class LinkGalleriesDirective(Directive):
                 except KeyError:
                     warn('Could not load the inventory of %s!', pkg)
                     continue
-                base_url = self.env.config.intersphinx_mapping[pkg][0]
+                if sphinx.__version__ <= '1.9':
+                    base_url = self.env.config.intersphinx_mapping[pkg][0]
+                else:
+                    base_url = self.env.config.intersphinx_mapping[pkg][1][0]
                 if not base_url.endswith('/'):
                     base_url += '/'
                 for key, val in refs.items():
