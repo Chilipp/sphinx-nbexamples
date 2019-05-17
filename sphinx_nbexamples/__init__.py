@@ -123,10 +123,10 @@ class NotebookProcessor(object):
 
     #: base string for viewing the notebook in the binder
     CODE_RUN_BINDER = """
-        **Run the notebook** |binder|
+        **Run this example interactively:** |binder|
 
         .. |binder| image:: https://mybinder.org/badge_logo.svg
-            :target: {url}?filepath={nbfile}
+            :target: {url}
 """
 
     #: base string for downloading supplementary data
@@ -450,7 +450,7 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
                 nbfile=os.path.basename(self.outfile))
         if self.binder_url is not None:
             rst_content += self.CODE_RUN_BINDER.format(
-                url=self.binder_url, nbfile=self.outfile)
+                url=self.binder_url)
         supplementary_files = self.supplementary_files
         other_supplementary_files = self.other_supplementary_files
         if supplementary_files or other_supplementary_files:
@@ -524,7 +524,7 @@ logging.getLogger('py.warnings').setLevel(logging.ERROR)
         """Create the thumbnail for html output"""
         thumbnail_figure = self.copy_thumbnail_figure()
         if thumbnail_figure is not None:
-            if isinstance(thumbnail_figure, six.string_types):
+            if isstring(thumbnail_figure):
                 pic = thumbnail_figure
             else:
                 pic = self.pictures[thumbnail_figure]
@@ -665,6 +665,10 @@ class Gallery(object):
     def urls(self):
         return self._all_urls[self._in_dir_count]
 
+    @property
+    def binder_urls(self):
+        return self._all_binder_urls[self._in_dir_count]
+
     def __init__(self, examples_dirs=['../examples'], gallery_dirs=None,
                  pattern='example_.+.ipynb', disable_warnings=True,
                  dont_preprocess=[], preprocess=True, clear=True,
@@ -762,11 +766,11 @@ class Gallery(object):
         .. [2] http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css
         .. [3] http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.0.min.js
         """
-        if isinstance(examples_dirs, six.string_types):
+        if isstring(examples_dirs):
             examples_dirs = [examples_dirs]
         if gallery_dirs is None:
             gallery_dirs = list(map(os.path.basename, examples_dirs))
-        if isinstance(gallery_dirs, six.string_types):
+        if isstring(gallery_dirs):
             gallery_dirs = [gallery_dirs]
 
         for i, s in enumerate(examples_dirs):
@@ -780,7 +784,7 @@ class Gallery(object):
         self.in_dir = examples_dirs
         self.out_dir = gallery_dirs
 
-        if isinstance(pattern, six.string_types):
+        if isstring(pattern):
             pattern = re.compile(pattern)
         self.pattern = pattern
         self.disable_warnings = disable_warnings
@@ -793,10 +797,13 @@ class Gallery(object):
         self.osf = other_supplementary_files
         self.thumbnail_figures = thumbnail_figures
         self.toctree_depth = toctree_depth
-        self.binder_url = binder_url
-        if urls is None or isinstance(urls, (dict, six.string_types)):
+        if urls is None or isstring(urls) or isinstance(urls, dict):
             urls = [urls] * len(self.in_dir)
+        if binder_url is None or isstring(binder_url) or isinstance(
+                binder_url, dict):
+            binder_url = [binder_url] * len(self.in_dir)
         self._all_urls = urls
+        self._all_binder_urls = binder_url
         if insert_bokeh and not isstring(insert_bokeh):
             import bokeh
             insert_bokeh = bokeh.__version__
@@ -811,7 +818,6 @@ class Gallery(object):
         self._nbp_kws = {'insert_bokeh': insert_bokeh,
                          'insert_bokeh_widgets': insert_bokeh_widgets,
                          'tag_options': tag_options,
-                         'binder_url': self.binder_url,
                          }
 
     def process_directories(self):
@@ -860,6 +866,7 @@ class Gallery(object):
                     other_supplementary_files=self.osf.get(f),
                     thumbnail_figure=self.thumbnail_figures.get(f),
                     url=self.get_url(f.replace(base_dir, '')),
+                    binder_url=self.get_binder_url(f.replace(base_dir, '')),
                     **self._nbp_kws)
                 for f in map(lambda f: os.path.join(file_dir, f),
                              filter(self.pattern.match, files))]
@@ -980,6 +987,28 @@ class Gallery(object):
                 urls += '/'
             return urls + nbfile
 
+    def get_binder_url(self, nbfile):
+        """Return the url corresponding to the given notebook file
+
+        Parameters
+        ----------
+        nbfile: str
+            The path of the notebook relative to the corresponding
+            :attr:``in_dir``
+
+        Returns
+        -------
+        str or None
+            The url or None if no url has been specified
+        """
+        urls = self.binder_urls
+        if isinstance(urls, dict):
+            return urls.get(nbfile)
+        elif isstring(urls):
+            if not urls.endswith('/'):
+                urls += '/'
+            return urls + nbfile
+
 
 def align(argument):
     """Conversion function for the "align" option."""
@@ -1024,10 +1053,10 @@ class LinkGalleriesDirective(Directive):
         gallery_dirs = conf.get('gallery_dirs')
         if not gallery_dirs:
             examples_dirs = conf.get('example_dirs', ['../examples'])
-            if isinstance(examples_dirs, six.string_types):
+            if isstring(examples_dirs):
                 examples_dirs = [examples_dirs]
             gallery_dirs = list(map(osp.basename, examples_dirs))
-        if isinstance(gallery_dirs, six.string_types):
+        if isstring(gallery_dirs):
             gallery_dirs = [gallery_dirs]
         for i, s in enumerate(gallery_dirs):
             if not s.endswith(os.path.sep):
