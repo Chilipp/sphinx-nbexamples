@@ -130,6 +130,11 @@ here
 
 Including bokeh
 ---------------
+
+.. warn::
+
+    Bokeh is currently not working! See `#10 <https://github.com/Chilipp/sphinx-nbexamples/issues/10>`_
+
 Note that bokeh needs a special treatment, especially when using the scheme
 from readthedocs.org_, because it requires additional style sheets and javascript
 files. So, if you have bokeh plots in your documentation, we recommend to
