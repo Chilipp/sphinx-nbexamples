@@ -31,6 +31,9 @@ setup(name='sphinx-nbexamples',
       ],
       keywords=('sphinx sphinx-gallery examples documentation notebook ipython'
                 ' jupyter nbconvert nbsphinx'),
+      project_urls={
+          'Documentation': 'https://sphinx-nbexamples.readthedocs.io',
+      },
       url='https://github.com/Chilipp/sphinx-nbexamples',
       author='Philipp Sommer',
       author_email='philipp.sommer@unil.ch',
