@@ -94,8 +94,19 @@ from the `source on GitHub`_.
 
 Requirements
 ============
-The package only requires Sphinx_, ipython and nbconvert to be installed. It
-has been tested for versions higher than 1.3.
+The package requires
+
+- Sphinx_>=1.3: The python library for generating automated documentation
+- jupyter_: The jupyter framework for jupyter notebooks. sphinx-nbexamples
+  explicitly depends on
+
+  - nbconvert_: For converting jupyter notebooks to RST
+  - jupyter_client_: For managing the kernels
+  - ipykernel_: For installing an ipython kernel and run the notebooks
 
 
 .. _Sphinx: http://www.sphinx-doc.org/en/stable
+.. _jupyter: http://jupyter.org/
+.. _nbconvert: https://nbconvert.readthedocs.io
+.. _jupyter_client: https://jupyter-client.readthedocs.io
+.. _ipykernel: https://ipykernel.readthedocs.io

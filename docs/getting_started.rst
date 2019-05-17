@@ -114,22 +114,79 @@ Including a link to the nbviewer
 --------------------------------
 If your notebooks are also published online, you can embed a link to the
 wonderful `jupyter nbviewer`_ in the documentation. You have multiple options
-here
+here. You can either
 
-1. You can either specify the url for each notebook separately providing a
-   mapping from notebook file to url in the ``'urls'`` keyword
-2. Include a url key in the metadata of your notebook
-3. specify one single url in the ``'urls'`` keyword for each example directory
-   from the ``'example_dirs'`` keyword if you have all the example directories
-   available online.
+1. specify the url for each notebook separately providing a mapping from
+   notebook file to url in the ``'urls'`` option of the
+   :confval:`example_gallery_config`
+2. include a url item in the metadata of your notebook that points to
+   the url of the notebook
+3. specify one single url in the ``'urls'`` option of the
+   :confval:`example_gallery_config` that will then be extended to the
+   corresponding notebook path. For sphinx-nbexamples, this looks like::
+
+       example_gallery_config = {
+           urls='https://github.com/Chilipp/sphinx-nbexamples/blob/master/examples',
+       }
 
 .. _jupyter nbviewer: https://nbviewer.jupyter.org
+
+
+.. _binder:
+
+Including a link to the binder
+------------------------------
+`Jupyters binderhub`_ allows to run the example notebooks of your repository
+(see for example mybinder.org_). If your notebooks are also published online,
+sphinx-nbexamples can add a badge like |binder| in the documentation.
+
+You have multiple options here. You can either
+
+1. specify the url for each notebook separately providing a mapping from
+   notebook file to url in the ``'binder_urls'`` option of the
+   :confval:`example_gallery_config`
+2. include a binder_url item in the metadata of your notebook that points to
+   the url of the notebook where it can be run interactively
+3. specify one single url in the ``'binder_urls'`` option of the
+   :confval:`example_gallery_config` that will then be extended to the
+   corresponding notebook path. For sphinx-nbexamples at mybinder.org_, this
+   looks like::
+
+       example_gallery_config = {
+           'binder_url': 'https://mybinder.org/v2/gh/Chilipp/sphinx-nbexamples/master?filepath=examples',
+       }
+
+   or for the `pangeo binder`_::
+
+       example_gallery_config = {
+           'binder_url': 'https://binder.pangeo.io/v2/gh/Chilipp/sphinx-nbexamples/master?filepath=examples',
+       }
+
+   See the binderhub service you use (e.g. mybinder.org_) for how to get this
+   url for your repository. This will, e.g. for the
+   :ref:`example_basic.ipynb <gallery_examples_example_basic.ipynb>` notebook,
+   translate into::
+
+       .. image:: https://mybinder.org/badge_logo.svg
+           :target: https://mybinder.org/v2/gh/Chilipp/sphinx-nbexamples/master?filepath=examples/example_basic.ipynb
+
+.. |binder| image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/Chilipp/sphinx-nbexamples/master
+
+.. _jupyters binderhub: https://binderhub.readthedocs.io/en/latest/
+.. _mybinder.org: https://mybinder.org/
+.. _pangeo binder: https://binder.pangeo.io/
 
 
 .. _bokeh:
 
 Including bokeh
 ---------------
+
+.. warning::
+
+    Bokeh is not working for the latest version (see `#10 <https://github.com/Chilipp/sphinx-nbexamples/issues/10>`_). PR's welcomed!
+
 Note that bokeh needs a special treatment, especially when using the scheme
 from readthedocs.org_, because it requires additional style sheets and javascript
 files. So, if you have bokeh plots in your documentation, we recommend to

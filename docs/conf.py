@@ -62,6 +62,7 @@ example_gallery_config = dict(
     dont_preprocess=['../examples/Subgallery/example_bokeh.ipynb'],
     insert_bokeh='0.12.1',
     urls='https://github.com/Chilipp/sphinx-nbexamples/blob/master/examples',
+    binder_url='https://mybinder.org/v2/gh/Chilipp/sphinx-nbexamples/master?filepath=examples',
     )
 process_examples = not osp.exists(osp.join(osp.dirname(__file__), 'examples'))
 
