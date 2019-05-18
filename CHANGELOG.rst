@@ -1,3 +1,36 @@
+v0.4.0
+======
+This release adds support for non-python notebooks and the possibility to
+include links to binderhub-services (e.g. https://mybinder.org) in the docs.
+
+Added
+-----
+- Thanks to the efforts of `@effigies <https://github.com/effigies>`_ in
+  `#3 <https://github.com/Chilipp/sphinx-nbexamples/issues/3>`_,
+  `#4 <https://github.com/Chilipp/sphinx-nbexamples/issues/4>`_,
+  `#5 <https://github.com/Chilipp/sphinx-nbexamples/issues/5>`_,
+  `#6 <https://github.com/Chilipp/sphinx-nbexamples/pull/6>`_,
+  `#7 <https://github.com/Chilipp/sphinx-nbexamples/pull/7>`_,
+  `#8 <https://github.com/Chilipp/sphinx-nbexamples/pull/8>`_, and
+  `#9 <https://github.com/Chilipp/sphinx-nbexamples/pull/9>`_, we now support
+  ``README.md`` files and non-python notebooks (see
+  `the bash example in the docs <https://sphinx-nbexamples.readthedocs.io/en/latest/examples/example_bash.html#gallery-examples-example-bash-ipynb>`_)
+- sphinx-nbexamples now supports including a link to binder services with
+  buttons like |binder| in the converted notebook. See the `docs on including a link to binder <https://sphinx-nbexamples.readthedocs.io/en/latest/getting_started.html#including-a-link-to-the-binder>`_
+
+.. |binder| image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/Chilipp/sphinx-nbexamples/master
+
+Changed
+-------
+- Bokeh has been marked as not working in the conversion of notebooks (see `#10 <https://github.com/Chilipp/sphinx-nbexamples/issues/10>`_)
+- a bug with the thumbnails in the linkgalleries directive for sphinx>1.8.5 has
+  been resolved (see `cc402b2 <https://github.com/Chilipp/sphinx-nbexamples/commit/cc402b2be3ac765a68bac76f1682a854c580fdb7>`_)
+
+v0.3.2
+======
+Fixed compatibility with nbconvert 5.5
+
 v0.3.1
 ======
 This patch fixes some minor logging issues with sphinx >1.7.6
