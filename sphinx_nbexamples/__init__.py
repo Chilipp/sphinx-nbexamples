@@ -686,7 +686,7 @@ class Gallery(object):
         examples_dirs: list of str
             list containing the directories to loop through. Default:
             ``['../examples']``
-        gallerys_dirs: list of str
+        gallery_dirs: list of str
             None or list of directories where the rst files shall be created.
             If None, the current working directory and the name of the
             corresponding directory in the `examples_dirs` is used. Default:
