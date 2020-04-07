@@ -16,8 +16,6 @@ jobs:
     - python: "3.7"
       env: SPHINX_VERSION=1.8.*
     - python: "3.7"
-      env: SPHINX_VERSION=1.9.*
-    - python: "3.7"
       env: SPHINX_VERSION=2.0.*
     - python: "3.7"
       env: SPHINX_VERSION=2.1.*
@@ -39,8 +37,6 @@ jobs:
       env: SPHINX_VERSION=1.7.*
     - python: "2.7"
       env: SPHINX_VERSION=1.8.*
-    - python: "2.7"
-      env: SPHINX_VERSION=1.9.*
     - python: "2.7"
       env: SPHINX_VERSION=""
 addons:
