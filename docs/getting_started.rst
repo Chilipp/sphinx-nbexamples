@@ -81,7 +81,7 @@ are created for each notebook. They can be chosen via
 1. the ``'code_examples'`` key in the :confval:`example_gallery_config`
 2. the ``'code_example'`` key in the meta data of the notebook
 3. the ``'thumbnail_figures'`` key in the :confval:`example_gallery_config`
-4. the key ``'thumbnail_figures'`` in the meta data of the notebook
+4. the key ``'thumbnail_figure'`` in the meta data of the notebook
 5. automatically from the last matplotlib figure in the example notebook
 
 Hence, if you do not specify either ``'code_examples'`` nor
