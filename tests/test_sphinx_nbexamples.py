@@ -48,6 +48,7 @@ class BaseTest(unittest.TestCase):
         os.rmdir(self.src_dir)
         self.out_dir = osp.join(self.src_dir, 'build', 'html')
         shutil.copytree(sphinx_supp, self.src_dir)
+
         self.app = Sphinx(
             srcdir=self.src_dir, confdir=self.src_dir, outdir=self.out_dir,
             doctreedir=osp.join(self.src_dir, 'build', 'doctrees'),
@@ -217,6 +218,27 @@ class TestGallery(BaseTest):
         with open(rst_path) as f:
             rst = f.read()
         self.assertIn('hello, world', rst)
+
+
+class TestWarnings(BaseTest):
+
+    def setUp(self):
+        pass
+
+    def _setUp(self):
+        super().setUp()
+
+    @unittest.skipIf(int(sphinx.__version__.split('.')[0]) != 3,
+                     "Test implemented for sphinx 3.0")
+    @unittest.expectedFailure
+    def test_stylesheet_warning(self):
+        """Test whether the app.add_stylesheet() warning is triggered
+
+        See https://github.com/Chilipp/sphinx-nbexamples/issues/14"""
+        from sphinx.application import RemovedInSphinx40Warning
+        self.assertWarnsRegex(
+            RemovedInSphinx40Warning, '.*Please use app.add_css_file',
+            self._setUp)
 
 
 @unittest.skipIf(pathlib is None, 'The pathlib package is required!')

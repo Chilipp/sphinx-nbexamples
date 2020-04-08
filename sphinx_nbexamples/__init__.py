@@ -1162,7 +1162,10 @@ def setup(app):
 
     app.add_config_value('example_gallery_config', gallery_config, 'html')
 
-    app.add_stylesheet('example_gallery_styles.css')
+    if int(sphinx.__version__.split('.')[0]) >= 3:
+        app.add_css_file('example_gallery_styles.css')
+    else:
+        app.add_stylesheet('example_gallery_styles.css')
 
     app.add_directive('linkgalleries', LinkGalleriesDirective)
 
