@@ -15,6 +15,7 @@ setup(name='sphinx-nbexamples',
       description=(
           'Create an examples gallery with sphinx from Jupyter Notebooks'),
       long_description=readme(),
+      long_description_content_type="text/x-rst",
       classifiers=[
         'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
