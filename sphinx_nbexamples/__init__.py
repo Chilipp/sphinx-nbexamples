@@ -969,7 +969,7 @@ class Gallery(object):
                 app.add_stylesheet(
                     NotebookProcessor.BOKEH_STYLE_SHEET.format(
                         version=insert_bokeh))
-            app.add_javascript(
+            app.add_js_file(
                 NotebookProcessor.BOKEH_JS.format(version=insert_bokeh))
 
         insert_bokeh_widgets = config.get('insert_bokeh_widgets')
@@ -985,7 +985,7 @@ class Gallery(object):
                 app.add_stylesheet(
                     NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
                         version=insert_bokeh_widgets))
-            app.add_javascript(
+            app.add_js_file(
                 NotebookProcessor.BOKEH_WIDGETS_JS.format(
                     version=insert_bokeh_widgets))
 
