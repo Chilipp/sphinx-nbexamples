@@ -960,9 +960,15 @@ class Gallery(object):
             if not isstring(insert_bokeh):
                 import bokeh
                 insert_bokeh = bokeh.__version__
-            app.add_stylesheet(
-                NotebookProcessor.BOKEH_STYLE_SHEET.format(
-                    version=insert_bokeh))
+
+            if int(sphinx.__version__.split('.')[0]) >= 3:
+                app.add_css_file(
+                    NotebookProcessor.BOKEH_STYLE_SHEET.format(
+                        version=insert_bokeh))
+            else:
+                app.add_stylesheet(
+                    NotebookProcessor.BOKEH_STYLE_SHEET.format(
+                        version=insert_bokeh))
             app.add_javascript(
                 NotebookProcessor.BOKEH_JS.format(version=insert_bokeh))
 
@@ -971,9 +977,14 @@ class Gallery(object):
             if not isstring(insert_bokeh_widgets):
                 import bokeh
                 insert_bokeh_widgets = bokeh.__version__
-            app.add_stylesheet(
-                NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
-                    version=insert_bokeh_widgets))
+            if int(sphinx.__version__.split('.')[0]) >= 3:
+                app.add_css_file(
+                    NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
+                        version=insert_bokeh_widgets))
+            else:
+                app.add_stylesheet(
+                    NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
+                        version=insert_bokeh_widgets))
             app.add_javascript(
                 NotebookProcessor.BOKEH_WIDGETS_JS.format(
                     version=insert_bokeh_widgets))
