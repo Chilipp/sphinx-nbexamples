@@ -6,7 +6,7 @@ Create an examples gallery with sphinx from Jupyter Notebooks
     :target: http://unmaintained.tech/
     :alt: No Maintenance Intended
 
-**This module is not maintained. Please use nbsphinx_ instead!**
+**This module is not maintained. Please use** nbsphinx_ **instead!**
 
 .. _nbsphinx: https://nbsphinx.readthedocs.io
 
