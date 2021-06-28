@@ -1,4 +1,12 @@
+version: 2
+
+# Build all formats
+formats:
+  - htmlzip
+  - epub
 python:
-   version: 3
-   setup_py_install: true
-requirements_file: docs/requirements.txt
+   version: 3.7
+   install:
+     - method: pip
+       path: .
+       requirements: docs/requirements.txt
