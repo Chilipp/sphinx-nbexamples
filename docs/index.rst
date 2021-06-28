@@ -2,6 +2,14 @@
 Create an examples gallery with sphinx from Jupyter Notebooks
 =============================================================
 
+.. image:: http://unmaintained.tech/badge.svg
+    :target: http://unmaintained.tech/
+    :alt: No Maintenance Intended
+
+**This module is not maintained. Please use nbsphinx_ instead!**
+
+.. _nbsphinx: https://nbsphinx.readthedocs.io
+
 .. start-badges
 .. only:: html and not epub
 

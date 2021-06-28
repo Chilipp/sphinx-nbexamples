@@ -26,6 +26,7 @@ import nbconvert
 import nbformat
 from shutil import copyfile
 from copy import deepcopy
+import warnings
 try:
     from sphinx.util import logging
     logger = logging.getLogger(__name__)
@@ -58,10 +59,24 @@ except ImportError:
     except ImportError:
         from ordereddict import OrderedDict
 
+__author__ = "Philipp S. Sommer"
+__copyright__ = "2016 - 2021, Philipp S. Sommer"
 
-__version__ = '0.4.0'
+__credits__ = ["Philipp S. Sommer"]
+__license__ = "MIT"
 
-__author__ = "Philipp Sommer"
+__maintainer__ = "Philipp S. Sommer"
+__email__ = "philipp.sommer@hereon.de"
+
+__status__ = "Production"
+
+__version__ = '0.4.1'
+
+warnings.warn(
+    "sphinx-nbexamples is no longer maintained! We recommend to use nbsphinx "
+    "instead (https://nbsphinx.readthedocs.io/).",
+    DeprecationWarning,
+)
 
 if nbconvert.__version__ < '5.0':
     code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')

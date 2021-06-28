@@ -11,12 +11,12 @@ def readme():
 
 
 setup(name='sphinx-nbexamples',
-      version='0.4.0',
+      version='0.4.1',
       description=(
           'Create an examples gallery with sphinx from Jupyter Notebooks'),
       long_description=readme(),
       classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'Topic :: Documentation',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
@@ -35,9 +35,9 @@ setup(name='sphinx-nbexamples',
           'Documentation': 'https://sphinx-nbexamples.readthedocs.io',
       },
       url='https://github.com/Chilipp/sphinx-nbexamples',
-      author='Philipp Sommer',
-      author_email='philipp.sommer@unil.ch',
-      license="GPLv2",
+      author='Philipp S. Sommer',
+      author_email='philipp.sommer@hereon.de',
+      license="MIT",
       packages=find_packages(exclude=['docs', 'tests*', 'examples']),
       package_data={'sphinx_nbexamples': ['sphinx_nbexamples/_static/*']},
       include_package_data=True,
