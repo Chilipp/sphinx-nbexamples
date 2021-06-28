@@ -26,6 +26,7 @@ import nbconvert
 import nbformat
 from shutil import copyfile
 from copy import deepcopy
+import warnings
 try:
     from sphinx.util import logging
     logger = logging.getLogger(__name__)
@@ -58,10 +59,24 @@ except ImportError:
     except ImportError:
         from ordereddict import OrderedDict
 
+__author__ = "Philipp S. Sommer"
+__copyright__ = "2016 - 2021, Philipp S. Sommer"
 
-__version__ = '0.4.0'
+__credits__ = ["Philipp S. Sommer"]
+__license__ = "MIT"
 
-__author__ = "Philipp Sommer"
+__maintainer__ = "Philipp S. Sommer"
+__email__ = "philipp.sommer@hereon.de"
+
+__status__ = "Production"
+
+__version__ = '0.4.1'
+
+warnings.warn(
+    "sphinx-nbexamples is no longer maintained! We recommend to use nbsphinx "
+    "instead (https://nbsphinx.readthedocs.io/).",
+    DeprecationWarning,
+)
 
 if nbconvert.__version__ < '5.0':
     code_blocks = re.compile(r'\.\. code:: python\n(?s)(.+?)(?=\n\S+|$)')
@@ -945,10 +960,16 @@ class Gallery(object):
             if not isstring(insert_bokeh):
                 import bokeh
                 insert_bokeh = bokeh.__version__
-            app.add_stylesheet(
-                NotebookProcessor.BOKEH_STYLE_SHEET.format(
-                    version=insert_bokeh))
-            app.add_javascript(
+
+            if int(sphinx.__version__.split('.')[0]) >= 3:
+                app.add_css_file(
+                    NotebookProcessor.BOKEH_STYLE_SHEET.format(
+                        version=insert_bokeh))
+            else:
+                app.add_stylesheet(
+                    NotebookProcessor.BOKEH_STYLE_SHEET.format(
+                        version=insert_bokeh))
+            app.add_js_file(
                 NotebookProcessor.BOKEH_JS.format(version=insert_bokeh))
 
         insert_bokeh_widgets = config.get('insert_bokeh_widgets')
@@ -956,10 +977,15 @@ class Gallery(object):
             if not isstring(insert_bokeh_widgets):
                 import bokeh
                 insert_bokeh_widgets = bokeh.__version__
-            app.add_stylesheet(
-                NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
-                    version=insert_bokeh_widgets))
-            app.add_javascript(
+            if int(sphinx.__version__.split('.')[0]) >= 3:
+                app.add_css_file(
+                    NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
+                        version=insert_bokeh_widgets))
+            else:
+                app.add_stylesheet(
+                    NotebookProcessor.BOKEH_WIDGETS_STYLE_SHEET.format(
+                        version=insert_bokeh_widgets))
+            app.add_js_file(
                 NotebookProcessor.BOKEH_WIDGETS_JS.format(
                     version=insert_bokeh_widgets))
 
